@@ -1,0 +1,70 @@
+{
+    "ok": true,
+    "video": "uploads/video.mp4",
+    "video_stem": "video",
+    "frames_count": 28,
+    "frames_time_seconds": 1.204,
+    "transcription_time_seconds": 3.817,
+    "detection_time_seconds": 4.562,
+    "total_time_seconds": 10.183,
+    "transcript": {
+        "text": "Welcome to today's lecture on classical mechanics. We'll begin with Newton's laws of motion. The first law, also called the law of inertia, states that an object at rest stays at rest, and an object in motion stays in motion, unless acted upon by an external force. The second law provides the quantitative relation: force equals mass times acceleration, or F equals m times a. This is arguably the most important equation in classical mechanics. The third law tells us that every action has an equal and opposite reaction. Let's now look at how we can apply these laws to real-world problems. Consider a block sliding down an inclined plane. The forces acting on the block include gravity, the normal force, and friction. By decomposing the gravitational force into components parallel and perpendicular to the plane, we can write the equations of motion. For the direction along the plane: m times a equals m times g times sine theta minus the friction force. Perpendicular to the plane, the normal force equals m times g times cosine theta. This allows us to solve for acceleration and predict the motion of the block.",
+        "segments": [
+            {
+                "start": 0.0,
+                "end": 4.2,
+                "text": "Welcome to today's lecture on classical mechanics."
+            },
+            {
+                "start": 4.2,
+                "end": 8.1,
+                "text": "We'll begin with Newton's laws of motion."
+            },
+            {
+                "start": 8.1,
+                "end": 14.5,
+                "text": "The first law, also called the law of inertia, states that an object at rest stays at rest."
+            },
+            {
+                "start": 14.5,
+                "end": 22.3,
+                "text": "The second law provides the quantitative relation: force equals mass times acceleration."
+            },
+            {
+                "start": 22.3,
+                "end": 28.0,
+                "text": "The third law tells us that every action has an equal and opposite reaction."
+            }
+        ],
+        "model": "whisper-1",
+        "time_seconds": 3.817
+    },
+    "detections_summary": {
+        "total_frames": 28,
+        "unique_labels": [
+            "person",
+            "book",
+            "laptop",
+            "cell phone",
+            "chair"
+        ],
+        "top_labels": [
+            {
+                "label": "person",
+                "count": 28,
+                "avg_confidence": 0.92
+            },
+            {
+                "label": "book",
+                "count": 14,
+                "avg_confidence": 0.78
+            },
+            {
+                "label": "laptop",
+                "count": 8,
+                "avg_confidence": 0.85
+            }
+        ],
+        "detection_time_seconds": 4.562
+    }
+}

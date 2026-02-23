@@ -1,0 +1,76 @@
+{
+    "summary": "This lecture covers Newton's three laws of motion in classical mechanics. The first law (law of inertia) describes how objects maintain their state unless acted upon by external forces. The second law, F = ma, provides the fundamental quantitative relationship between force, mass, and acceleration. The third law establishes that forces always come in equal and opposite pairs. The lecture applies these principles to the inclined plane problem, decomposing gravitational force into components to derive equations of motion.",
+    "key_concepts": [
+        "Newton's First Law (Law of Inertia)",
+        "Newton's Second Law (F = ma)",
+        "Newton's Third Law (Action-Reaction)",
+        "Inclined Plane Mechanics",
+        "Force Decomposition",
+        "Normal Force",
+        "Friction Force",
+        "Free Body Diagrams"
+    ],
+    "formulas": [
+        {
+            "latex": "F = ma",
+            "explanation": "Newton's second law: net force equals mass times acceleration",
+            "timestamp": 14.5
+        },
+        {
+            "latex": "ma = mg\\sin\\theta - f",
+            "explanation": "Equation of motion along the inclined plane, where f is friction force",
+            "timestamp": 22.0
+        },
+        {
+            "latex": "N = mg\\cos\\theta",
+            "explanation": "Normal force on an inclined plane equals weight component perpendicular to surface",
+            "timestamp": 24.0
+        },
+        {
+            "latex": "f = \\mu N = \\mu mg\\cos\\theta",
+            "explanation": "Friction force is the product of coefficient of friction and normal force",
+            "timestamp": 25.0
+        }
+    ],
+    "viva_questions": {
+        "easy": [
+            "State Newton's first law of motion.",
+            "What is the formula for Newton's second law?",
+            "Define the normal force on an inclined plane."
+        ],
+        "medium": [
+            "Explain how force decomposition works on an inclined plane.",
+            "How does friction affect the acceleration of a block on an incline?",
+            "What is the relationship between action and reaction forces according to Newton's third law?"
+        ],
+        "hard": [
+            "Derive the equation of motion for a block sliding down a rough inclined plane.",
+            "Compare the motion of a block on a frictionless vs. rough incline — derive the acceleration in both cases.",
+            "If the coefficient of friction equals tan(θ), what happens to the block's motion? Explain."
+        ]
+    },
+    "highlights": [
+        {
+            "timestamp": 0,
+            "text": "Introduction to classical mechanics and Newton's laws"
+        },
+        {
+            "timestamp": 14.5,
+            "text": "F = ma — the core equation of classical mechanics"
+        },
+        {
+            "timestamp": 22.3,
+            "text": "Application to inclined plane problem with force decomposition"
+        }
+    ],
+    "provenance": {
+        "model": "gpt-4o-mini",
+        "temperature": 0.0,
+        "transcript_chars_used": 850,
+        "detection_labels_used": [
+            "person",
+            "book",
+            "laptop"
+        ]
+    }
+}

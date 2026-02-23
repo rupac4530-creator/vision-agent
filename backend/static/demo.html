@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vision Agent — Interactive Demo</title>
+    <meta name="description"
+        content="Interactive demo: video player, AI notes with LaTeX, QA chat, quiz generator, and timeline thumbnails." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, startup: { pageReady: () => MathJax.startup.defaultPageReady() } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #12121a;
+            --bg3: rgba(255, 255, 255, 0.03);
+            --bg4: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-a: rgba(99, 102, 241, 0.5);
+            --text: #f0f0f5;
+            --text2: #9ca3b0;
+            --text3: #5a5f6e;
+            --accent: #6366f1;
+            --accent2: #8b5cf6;
+            --grad: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --grad-s: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            --ok: #22c55e;
+            --warn: #f59e0b;
+            --err: #ef4444;
+            --r: 14px;
+            --rs: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Background */
+        .bg-g {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bg-g .o {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.12;
+            animation: fl 22s ease-in-out infinite;
+        }
+
+        .bg-g .o:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            top: -8%;
+            left: -4%;
+            background: #6366f1;
+        }
+
+        .bg-g .o:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -8%;
+            right: -4%;
+            background: #a855f7;
+            animation-delay: -8s;
+        }
+
+        @keyframes fl {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+
+            50% {
+                transform: translate(30px, -40px) scale(1.08)
+            }
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .hdr {
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(16px);
+            background: rgba(10, 10, 15, 0.75);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .hdr h1 {
+            font-size: 18px;
+            font-weight: 800;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hdr .badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 16px;
+            background: var(--grad-s);
+            color: var(--accent);
+            border: 1px solid var(--border-a);
+            margin-left: auto;
+        }
+
+        /* Main grid */
+        .main {
+            max-width: 1260px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+        }
+
+        @media(max-width:860px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Video Player */
+        .player video {
+            width: 100%;
+            border-radius: var(--rs);
+            background: #000;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .timeline::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .timeline::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .thumb {
+            width: 88px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .thumb:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .thumb.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Sections */
+        .section {
+            margin-top: 16px;
+        }
+
+        .section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text3);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--grad-s);
+            border: 1px solid var(--border-a);
+            color: var(--accent);
+        }
+
+        /* Formula card */
+        .fcard {
+            padding: 12px 16px;
+            background: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .fcard .latex {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .fcard .expl {
+            font-size: 11px;
+            color: var(--text2);
+        }
+
+        /* Questions */
+        .qgroup {
+            margin-bottom: 12px;
+        }
+
+        .qgroup h4 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text3);
+            margin-bottom: 6px;
+        }
+
+        .qi {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            line-height: 1.5;
+            border-left: 3px solid var(--accent);
+        }
+
+        .qgroup.medium .qi {
+            border-left-color: var(--warn);
+        }
+
+        .qgroup.hard .qi {
+            border-left-color: var(--err);
+        }
+
+        /* Highlights */
+        .hl {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .hl:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .hl-t {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 44px;
+        }
+
+        .hl-txt {
+            font-size: 12px;
+        }
+
+        /* Transcript */
+        .transcript {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text2);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Metrics */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .met {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--rs);
+            padding: 12px;
+            text-align: center;
+        }
+
+        .met-v {
+            font-size: 18px;
+            font-weight: 800;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .met-l {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* Chat */
+        .chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 370px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            max-height: 480px;
+        }
+
+        .chat-hdr {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            min-height: 120px;
+        }
+
+        .chat-msg {
+            margin-bottom: 10px;
+        }
+
+        .chat-msg.user {
+            text-align: right;
+        }
+
+        .chat-msg .bubble {
+            display: inline-block;
+            max-width: 85%;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .chat-msg.user .bubble {
+            background: var(--accent);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.bot .bubble {
+            background: var(--bg3);
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--rs);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--border-a);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border: none;
+            border-radius: var(--rs);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-p {
+            background: var(--grad);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-p:hover {
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-s {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-s:hover {
+            border-color: var(--border-a);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Sidebar scrollable */
+        .sidebar {
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Btn row */
+        .brow {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* Quiz modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            width: 90%;
+            max-width: 640px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 28px;
+        }
+
+        .modal h2 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .mcq {
+            margin-bottom: 16px;
+        }
+
+        .mcq-q {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .mcq-opt {
+            padding: 8px 14px;
+            margin-bottom: 4px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mcq-opt:hover {
+            border-color: var(--border-a);
+        }
+
+        .mcq-opt.correct {
+            border-color: var(--ok);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .mcq-opt.wrong {
+            border-color: var(--err);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .mcq-expl {
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 6px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .mcq-expl.show {
+            display: block;
+        }
+
+        /* Spinner */
+        .spin {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: sp 0.5s linear infinite;
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* Status bar */
+        .status-bar {
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid var(--border-a);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .status-bar.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Footer */
+        .foot {
+            text-align: center;
+            padding: 24px;
+            font-size: 11px;
+            color: var(--text3);
+            border-top: 1px solid var(--border);
+        }
+
+        .foot a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-g">
+        <div class="o"></div>
+        <div class="o"></div>
+    </div>
+
+    <div class="app">
+        <header class="hdr">
+            <h1>🎬 Vision Agent — Interactive Demo</h1>
+            <span class="badge">Real-Time Lecture Assistant</span>
+        </header>
+
+        <div class="status-bar" id="statusBar">
+            <span class="spin"></span>
+            <span id="statusText">Loading…</span>
+        </div>
+
+        <div class="main">
+            <!-- LEFT: Video + Timeline + Metrics -->
+            <div>
+                <div class="card player">
+                    <video id="videoPlayer" controls></video>
+                    <div class="timeline" id="timeline"></div>
+                </div>
+
+                <div class="section">
+                    <h3>🎙️ Transcript</h3>
+                    <div class="transcript" id="transcriptBox">Upload & analyze a video first, or load existing
+                        analysis.</div>
+                </div>
+
+                <div class="section">
+                    <h3>🎯 Highlights</h3>
+                    <div id="highlightsBox"></div>
+                </div>
+
+                <div class="section">
+                    <h3>⚡ Performance Metrics</h3>
+                    <div class="metrics" id="metricsBox"></div>
+                </div>
+
+                <div class="brow">
+                    <button class="btn btn-s" onclick="downloadFile('notes.json')">📥 Notes JSON</button>
+                    <button class="btn btn-s" onclick="downloadFile('analysis.json')">📥 Analysis JSON</button>
+                    <button class="btn btn-p" onclick="openQuizModal()">🧪 Generate Quiz</button>
+                </div>
+            </div>
+
+            <!-- RIGHT: Notes sidebar -->
+            <div class="sidebar">
+                <div class="card">
+                    <div class="section">
+                        <h3>📋 Summary</h3>
+                        <p id="summaryBox" style="font-size:13px;line-height:1.7;color:var(--text2)">—</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section">
+                        <h3>💡 Key Concepts</h3>
+                        <div class="tags" id="conceptsBox"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section">
+                        <h3>📐 Formulas</h3>
+                        <div id="formulasBox"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section">
+                        <h3>❓ Viva Questions</h3>
+                        <div id="vivaBox"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="foot">
+            Built with ❤️ for <a href="https://wemakedevs.org" target="_blank">WeMakeDevs</a> Vision Possible Hackathon
+            —
+            Powered by <a href="https://getstream.io/video/vision-agents/" target="_blank">Vision Agents by Stream</a>
+        </footer>
+    </div>
+
+    <!-- Chat Box -->
+    <div class="chat" id="chatBox">
+        <div class="chat-hdr">💬 Ask about this video</div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg bot">
+                <div class="bubble">Hi! Analyze a video first, then ask me anything about it.</div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input id="chatInput" placeholder="Type a question…" />
+            <button class="btn btn-p" id="chatSend" onclick="sendChat()">Ask</button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="modal-overlay" id="quizModal">
+        <div class="modal">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <h2>🧪 Quiz</h2>
+                <button class="btn btn-s" onclick="closeQuizModal()">✕ Close</button>
+            </div>
+            <div id="quizContent">
+                <p style="color:var(--text2)">Generating quiz…</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const VIDEO_STEM = 'video';
+        const AB = '/analysis/' + VIDEO_STEM + '/';
+        const FB = '/frames/' + VIDEO_STEM + '/';
+
+        // ── Status helpers ──────────────────────────────────────────────
+        function showStatus(msg) {
+            const sb = document.getElementById('statusBar');
+            sb.classList.add('show');
+            document.getElementById('statusText').textContent = msg;
+        }
+        function hideStatus() { document.getElementById('statusBar').classList.remove('show'); }
+
+        // ── Load analysis data ──────────────────────────────────────────
+        let analysisData = null, notesData = null, detectionsData = null;
+
+        async function loadAll() {
+            showStatus('Loading analysis data…');
+            try {
+                // Load analysis
+                const aResp = await fetch(AB + 'analysis.json');
+                if (aResp.ok) analysisData = await aResp.json();
+
+                // Load notes
+                const nResp = await fetch(AB + 'notes.json');
+                if (nResp.ok) notesData = await nResp.json();
+
+                // Load detections
+                const dResp = await fetch(AB + 'detections.json');
+                if (dResp.ok) detectionsData = await dResp.json();
+
+                renderAll();
+            } catch (e) {
+                console.warn('Data not loaded yet:', e);
+            }
+            hideStatus();
+        }
+
+        function renderAll() {
+            // Video player
+            if (analysisData && analysisData.video) {
+                // Construct URL from the video stem
+                document.getElementById('videoPlayer').src = '/uploads/video.mp4';
+            }
+
+            // Transcript
+            if (analysisData && analysisData.transcript) {
+                document.getElementById('transcriptBox').textContent = analysisData.transcript.text || '(empty)';
+            }
+
+            // Metrics
+            if (analysisData) {
+                const mg = document.getElementById('metricsBox');
+                const mets = [];
+                if (analysisData.frames_count) mets.push({ v: analysisData.frames_count, l: 'Frames' });
+                if (analysisData.frames_time_seconds) mets.push({ v: analysisData.frames_time_seconds + 's', l: 'Frame Time' });
+                if (analysisData.transcription_time_seconds) mets.push({ v: analysisData.transcription_time_seconds + 's', l: 'Transcribe' });
+                if (analysisData.detection_time_seconds) mets.push({ v: analysisData.detection_time_seconds + 's', l: 'Detection' });
+                if (analysisData.total_time_seconds) mets.push({ v: analysisData.total_time_seconds + 's', l: 'Total' });
+                mets.push({ v: analysisData.transcript?.model || '—', l: 'ASR Model' });
+                mg.innerHTML = mets.map(m => `<div class="met"><div class="met-v">${m.v}</div><div class="met-l">${m.l}</div></div>`).join('');
+            }
+
+            // Timeline thumbnails
+            if (detectionsData && detectionsData.results) {
+                const tl = document.getElementById('timeline');
+                tl.innerHTML = '';
+                detectionsData.results.forEach((r, i) => {
+                    const img = document.createElement('img');
+                    img.src = FB + r.frame;
+                    img.className = 'thumb';
+                    img.title = r.frame + ': ' + r.detections.slice(0, 4).map(d => d.label).join(', ');
+                    img.onclick = () => jumpTo(i, img);
+                    tl.appendChild(img);
+                });
+            }
+
+            // Notes
+            if (notesData) {
+                document.getElementById('summaryBox').textContent = notesData.summary || '—';
+
+                // Concepts
+                const cb = document.getElementById('conceptsBox');
+                cb.innerHTML = (notesData.key_concepts || []).map(c => `<span class="tag">${c}</span>`).join('');
+
+                // Formulas
+                const fb = document.getElementById('formulasBox');
+                fb.innerHTML = (notesData.formulas || []).map(f =>
+                    `<div class="fcard"><div class="latex">\\(${f.latex || ''}\\)</div><div class="expl">${f.explanation || ''} ${f.timestamp ? `(t=${f.timestamp}s)` : ''}</div></div>`
+                ).join('');
+
+                // Viva
+                const vb = document.getElementById('vivaBox');
+                vb.innerHTML = '';
+                const v = notesData.viva_questions || {};
+                ['easy', 'medium', 'hard'].forEach(level => {
+                    if (v[level] && v[level].length) {
+                        vb.innerHTML += `<div class="qgroup ${level}"><h4>${level}</h4>${v[level].map(q => `<div class="qi">${q}</div>`).join('')}</div>`;
+                    }
+                });
+
+                // Highlights
+                const hb = document.getElementById('highlightsBox');
+                hb.innerHTML = (notesData.highlights || []).map(h =>
+                    `<div class="hl" onclick="jumpTo(${Math.floor(h.timestamp || 0)})"><div class="hl-t">${h.timestamp ? h.timestamp + 's' : '—'}</div><div class="hl-txt">${h.text || ''}</div></div>`
+                ).join('');
+
+                // Re-render MathJax
+                if (window.MathJax && MathJax.typesetPromise) {
+                    MathJax.typesetPromise().catch(e => console.warn('MathJax:', e));
+                }
+            }
+        }
+
+        function jumpTo(idx, el) {
+            const p = document.getElementById('videoPlayer');
+            p.currentTime = idx;
+            p.play();
+            // Highlight thumb
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        // ── Chat / QA ───────────────────────────────────────────────────
+        document.getElementById('chatInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        async function sendChat() {
+            const inp = document.getElementById('chatInput');
+            const q = inp.value.trim();
+            if (!q) return;
+            inp.value = '';
+
+            const body = document.getElementById('chatBody');
+            body.innerHTML += `<div class="chat-msg user"><div class="bubble">${escHtml(q)}</div></div>`;
+            body.innerHTML += `<div class="chat-msg bot" id="pendingMsg"><div class="bubble"><span class="spin"></span> Thinking…</div></div>`;
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const resp = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_stem: VIDEO_STEM, question: q }),
+                });
+                const data = await resp.json();
+                const pending = document.getElementById('pendingMsg');
+                if (pending) {
+                    let answer = data.answer || data.detail || JSON.stringify(data);
+                    let extra = '';
+                    if (data.provenance) extra += `<br><span style="font-size:11px;color:var(--text3)">📎 ${escHtml(data.provenance)}</span>`;
+                    if (data.elapsed_seconds) extra += `<br><span style="font-size:10px;color:var(--text3)">⏱ ${data.elapsed_seconds}s</span>`;
+                    pending.querySelector('.bubble').innerHTML = escHtml(answer) + extra;
+                    pending.removeAttribute('id');
+                }
+            } catch (err) {
+                const pending = document.getElementById('pendingMsg');
+                if (pending) {
+                    pending.querySelector('.bubble').innerHTML = '❌ Error: ' + err.message;
+                    pending.removeAttribute('id');
+                }
+            }
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        // ── Quiz ────────────────────────────────────────────────────────
+        function openQuizModal() {
+            document.getElementById('quizModal').classList.add('open');
+            generateQuiz();
+        }
+        function closeQuizModal() { document.getElementById('quizModal').classList.remove('open'); }
+
+        async function generateQuiz() {
+            const cont = document.getElementById('quizContent');
+            cont.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span class="spin"></span> Generating quiz…</div>';
+            try {
+                const resp = await fetch('/generate_quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_stem: VIDEO_STEM, count: 5 }),
+                });
+                const data = await resp.json();
+                if (data.detail) throw new Error(data.detail);
+                renderQuiz(data);
+            } catch (err) {
+                cont.innerHTML = `<p style="color:var(--err)">Error: ${err.message}</p>`;
+            }
+        }
+
+        function renderQuiz(data) {
+            const cont = document.getElementById('quizContent');
+            let html = '';
+
+            // MCQs
+            const mcqs = data.mcq || [];
+            mcqs.forEach((m, qi) => {
+                html += `<div class="mcq"><div class="mcq-q">${qi + 1}. ${escHtml(m.question)}</div>`;
+                (m.options || []).forEach((opt, oi) => {
+                    const letter = String.fromCharCode(65 + oi);
+                    html += `<div class="mcq-opt" data-q="${qi}" data-ans="${m.answer}" data-letter="${letter}" onclick="checkMcq(this)">${letter}. ${escHtml(opt)}</div>`;
+                });
+                html += `<div class="mcq-expl" id="expl-${qi}">💡 ${escHtml(m.explanation || '')}</div></div>`;
+            });
+
+            // Short answers
+            const shorts = data.short || [];
+            if (shorts.length) {
+                html += '<h3 style="margin-top:20px;font-size:14px;font-weight:700">Short Answer</h3>';
+                shorts.forEach((s, i) => {
+                    html += `<div style="margin-bottom:12px"><div style="font-size:13px;font-weight:600;margin-bottom:4px">${i + 1}. ${escHtml(s.question)}</div>`;
+                    html += `<div style="font-size:12px;color:var(--text2);cursor:pointer" onclick="this.style.color='var(--text)'" title="Click to reveal">🔒 ${escHtml(s.answer)}</div></div>`;
+                });
+            }
+
+            if (data.elapsed_seconds) {
+                html += `<p style="font-size:11px;color:var(--text3);margin-top:12px">Generated in ${data.elapsed_seconds}s</p>`;
+            }
+
+            cont.innerHTML = html;
+        }
+
+        function checkMcq(el) {
+            const q = el.dataset.q;
+            const ans = el.dataset.ans;
+            const letter = el.dataset.letter;
+            // First check if answer matches (it might be the full option or just the letter)
+            const isCorrect = (letter === ans || ans.startsWith(letter));
+            el.classList.add(isCorrect ? 'correct' : 'wrong');
+            // Show explanation
+            const expl = document.getElementById('expl-' + q);
+            if (expl) expl.classList.add('show');
+            // Highlight correct answer
+            document.querySelectorAll(`.mcq-opt[data-q="${q}"]`).forEach(opt => {
+                const optLetter = opt.dataset.letter;
+                if (optLetter === ans || ans.startsWith(optLetter)) opt.classList.add('correct');
+            });
+        }
+
+        // ── Download ────────────────────────────────────────────────────
+        function downloadFile(name) {
+            fetch(AB + name).then(r => r.blob()).then(b => {
+                const url = URL.createObjectURL(b);
+                const a = document.createElement('a');
+                a.href = url; a.download = name; a.click();
+                URL.revokeObjectURL(url);
+            }).catch(e => alert('File not found: ' + name));
+        }
+
+        // ── Keyboard shortcuts ──────────────────────────────────────────
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const p = document.getElementById('videoPlayer');
+            if (e.key === 'ArrowLeft') { p.currentTime = Math.max(0, p.currentTime - 5); }
+            if (e.key === 'ArrowRight') { p.currentTime += 5; }
+            if (e.key === ' ') { e.preventDefault(); p.paused ? p.play() : p.pause(); }
+        });
+
+        // ── Init ────────────────────────────────────────────────────────
+        loadAll();
+    </script>
+</body>
+
+</html>

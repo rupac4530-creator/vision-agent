@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./backend/analysis:/app/backend/analysis
+      - ./backend/frames:/app/backend/frames
+      - ./backend/uploads:/app/backend/uploads
+    restart: unless-stopped

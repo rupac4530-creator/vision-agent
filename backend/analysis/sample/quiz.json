@@ -1,0 +1,82 @@
+{
+    "mcq": [
+        {
+            "question": "What does Newton's first law state?",
+            "options": [
+                "An object at rest stays at rest unless acted upon by an external force",
+                "Force equals mass times acceleration",
+                "Every action has an equal and opposite reaction",
+                "Energy is conserved in all processes"
+            ],
+            "answer": "A",
+            "explanation": "Newton's first law, the law of inertia, describes that objects maintain their state of motion unless an external force acts on them."
+        },
+        {
+            "question": "In the equation F = ma, what does 'a' represent?",
+            "options": [
+                "Area",
+                "Acceleration",
+                "Amplitude",
+                "Angular velocity"
+            ],
+            "answer": "B",
+            "explanation": "In Newton's second law, 'a' represents acceleration — the rate of change of velocity."
+        },
+        {
+            "question": "What is the normal force on a block resting on an inclined plane at angle θ?",
+            "options": [
+                "mg",
+                "mg sin θ",
+                "mg cos θ",
+                "mg tan θ"
+            ],
+            "answer": "C",
+            "explanation": "The normal force equals the component of gravitational force perpendicular to the surface: mg cos θ."
+        },
+        {
+            "question": "Which force drives a block down an inclined plane (ignoring friction)?",
+            "options": [
+                "Normal force",
+                "mg cos θ",
+                "mg sin θ",
+                "Centripetal force"
+            ],
+            "answer": "C",
+            "explanation": "The component of gravity parallel to the incline is mg sin θ, which drives the block downward."
+        },
+        {
+            "question": "According to Newton's third law, if you push a wall with 10N, the wall pushes back with:",
+            "options": [
+                "0 N",
+                "5 N",
+                "10 N",
+                "20 N"
+            ],
+            "answer": "C",
+            "explanation": "Newton's third law states every action has an equal and opposite reaction — the wall exerts 10N back."
+        }
+    ],
+    "short": [
+        {
+            "question": "State Newton's second law of motion in words and as a formula.",
+            "answer": "The net force acting on an object equals the product of its mass and acceleration: F = ma."
+        },
+        {
+            "question": "Why is force decomposition necessary when analyzing inclined plane problems?",
+            "answer": "Because gravity acts vertically but the motion is along the incline, we must decompose the weight into components parallel and perpendicular to the surface to write useful equations of motion."
+        },
+        {
+            "question": "What happens to acceleration if friction equals mg sin θ on an inclined plane?",
+            "answer": "If friction equals the component driving the block (mg sin θ), the net force is zero and the block remains stationary or moves at constant velocity."
+        },
+        {
+            "question": "Explain the role of the normal force on an inclined plane.",
+            "answer": "The normal force prevents the block from passing through the surface. It equals mg cos θ and is perpendicular to the incline."
+        },
+        {
+            "question": "Give an everyday example of Newton's third law.",
+            "answer": "When you walk, your foot pushes backward on the ground (action) and the ground pushes your foot forward (reaction), propelling you forward."
+        }
+    ],
+    "elapsed_seconds": 4.21
+}

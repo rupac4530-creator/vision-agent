@@ -1,0 +1,10 @@
+__pycache__/
+venv/
+uploads/
+frames/
+analysis/
+stream_uploads/
+*.pyc
+*.pt
+*.pth
+.env
