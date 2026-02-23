@@ -33,10 +33,11 @@ TAGS:
   Stream, OpenAI
 
 REPO URL:
-  <YOUR_GITHUB_REPO_URL>
+  https://github.com/rupac4530-creator/vision-agent
 
 VIDEO URL:
-  <YOUR_DEMO_VIDEO_URL>  (YouTube or GitHub Release asset)
+  https://github.com/rupac4530-creator/vision-agent/releases/tag/v1.0-hackathon
+  (Upload demo video here as a release asset)
 
 TEAM:
   <YOUR_NAME>
@@ -84,8 +85,6 @@ COMPLETION STATUS
 ✅ GitHub Actions CI workflow included
 
 REMAINING MANUAL STEPS:
-  1. Replace <YOUR_GITHUB_REPO_URL> with your remote
-  2. Replace <YOUR_DEMO_VIDEO_URL> after uploading
-  3. Record 2:30 demo video
-  4. git push && create GitHub Release
-  5. Submit on hackathon portal
+  1. Record 2:30 demo video
+  2. Upload video to GitHub Release: gh release upload v1.0-hackathon ./day6-final-demo.mp4
+  3. Submit on hackathon portal with the URLs above
