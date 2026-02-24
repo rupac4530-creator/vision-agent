@@ -21,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import json
 import shutil
+import subprocess
 import time
 
 import uvicorn
@@ -31,11 +32,6 @@ from detect import detect_frames
 from generate_notes import generate_notes_from_analysis
 from llm_helpers import call_llm, safe_parse_json
 from streaming import router as streaming_router
-
-try:
-    import ffmpeg as ffmpeg_lib
-except ImportError:
-    ffmpeg_lib = None
 
 # ── App setup ──────────────────────────────────────────────────────────
 app = FastAPI(
@@ -81,16 +77,39 @@ app.include_router(streaming_router)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────
+def _is_ffmpeg_available() -> bool:
+    """Return True if the ffmpeg binary is on PATH."""
+    return shutil.which("ffmpeg") is not None
+
+
 def _extract_audio(video_path: str, out_audio: str) -> str:
-    """Extract mono 16 kHz WAV from video using ffmpeg-python."""
-    if ffmpeg_lib is None:
-        raise RuntimeError("ffmpeg-python is not installed")
-    (
-        ffmpeg_lib.input(video_path)
-        .output(out_audio, ac=1, ar="16000", vn=None)
-        .overwrite_output()
-        .run(quiet=True)
-    )
+    """
+    Extract mono 16 kHz WAV from video using ffmpeg subprocess.
+    Raises RuntimeError with a clear message if ffmpeg is missing or fails.
+    """
+    video_p = Path(video_path)
+    if not video_p.exists():
+        raise RuntimeError(f"Video file not found: {video_path}")
+
+    if not _is_ffmpeg_available():
+        raise RuntimeError(
+            "ffmpeg binary not found in PATH. "
+            "Install ffmpeg (choco install ffmpeg) or run the Docker image."
+        )
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", str(video_p),
+        "-ac", "1",
+        "-ar", "16000",
+        "-vn",
+        str(out_audio),
+    ]
+    try:
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except subprocess.CalledProcessError as e:
+        err = e.stderr.decode(errors="ignore")[:2000]
+        raise RuntimeError(f"ffmpeg error:\n{err}")
     return out_audio
 
 
@@ -141,7 +160,11 @@ async def upload_video(file: UploadFile = File(...)):
 # ── POST /analyze (Day 2) ─────────────────────────────────────────────
 @app.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
-    """Full pipeline: upload → frames → audio → transcript → detection."""
+    """Full pipeline: upload → frames → audio → transcript → detection.
+    
+    RESILIENT: If audio extraction fails (e.g. ffmpeg missing), the pipeline
+    continues with frames + detection and returns partial results with warnings.
+    """
     fname = file.filename or "uploaded_video.mp4"
     ext = Path(fname).suffix or ".mp4"
     saved_path = UPLOAD_DIR / f"video{ext}"
@@ -159,29 +182,43 @@ async def analyze_video(file: UploadFile = File(...)):
             p.unlink()
 
     t_start = time.time()
+    warnings = []
 
     # Step 0: Extract frames
     frames_count = extract_frames(str(saved_path), str(frames_folder), fps_sample=1)
     t_frames = time.time() - t_start
 
-    # Step 1: Extract audio
+    # Step 1: Extract audio (resilient — continues if fails)
     analysis_dir = ANALYSIS_DIR / video_stem
     analysis_dir.mkdir(parents=True, exist_ok=True)
     audio_path = analysis_dir / "audio.wav"
+    audio_ok = False
 
     try:
         _extract_audio(str(saved_path), str(audio_path))
+        audio_ok = True
     except Exception as e:
-        return JSONResponse(
-            {"ok": False, "error": f"Audio extraction failed: {e}"}, status_code=500
-        )
+        warnings.append(f"Audio extraction failed: {e}")
 
-    # Step 2: Transcribe
+    # Step 2: Transcribe (skip if audio extraction failed)
     t0 = time.time()
-    transcript = transcribe_audio_whisper(str(audio_path), str(analysis_dir))
+    if audio_ok:
+        transcript = transcribe_audio_whisper(str(audio_path), str(analysis_dir))
+    else:
+        transcript = {
+            "text": "(Audio extraction failed — transcription skipped. See warnings.)",
+            "segments": [],
+            "model": "none",
+            "time_seconds": 0,
+        }
+        # Save placeholder transcript
+        (analysis_dir / "transcript.json").write_text(
+            json.dumps(transcript, indent=2), encoding="utf-8"
+        )
+        warnings.append("Transcription skipped due to audio extraction failure.")
     t_transcribe = time.time() - t0
 
-    # Step 3: Object detection
+    # Step 3: Object detection (always runs)
     t0 = time.time()
     detections = detect_frames(str(frames_folder), str(analysis_dir))
     t_detect = time.time() - t0
@@ -200,6 +237,9 @@ async def analyze_video(file: UploadFile = File(...)):
         "transcript": transcript,
         "detections_summary": detections["summary"],
     }
+
+    if warnings:
+        analysis["warnings"] = warnings
 
     # Persist analysis.json
     with open(analysis_dir / "analysis.json", "w", encoding="utf-8") as fh:

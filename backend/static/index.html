@@ -1,829 +1,1200 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vision Agent — Real-Time Multimodal AI</title>
-  <meta name="description" content="Real-time multimodal AI video agent that watches, listens, and understands video. Powered by Vision Agents SDK." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    /* ── CSS Reset & Variables ──────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vision Agent — Real-Time Multimodal AI</title>
+    <meta name="description"
+        content="Real-time multimodal AI video agent that watches, listens, and understands video. Powered by Vision Agents SDK." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ── CSS Reset & Variables ──────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-card: rgba(255,255,255,0.03);
-      --bg-card-hover: rgba(255,255,255,0.06);
-      --bg-glass: rgba(255,255,255,0.05);
-      --border: rgba(255,255,255,0.08);
-      --border-active: rgba(99,102,241,0.5);
-      --text-primary: #f0f0f5;
-      --text-secondary: #9ca3b0;
-      --text-muted: #5a5f6e;
-      --accent-1: #6366f1;
-      --accent-2: #8b5cf6;
-      --accent-3: #a855f7;
-      --gradient-main: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-      --gradient-subtle: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15));
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --radius: 16px;
-      --radius-sm: 10px;
-      --shadow: 0 8px 32px rgba(0,0,0,0.4);
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(99, 102, 241, 0.5);
+            --text-primary: #f0f0f5;
+            --text-secondary: #9ca3b0;
+            --text-muted: #5a5f6e;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #a855f7;
+            --gradient-main: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    /* ── Animated Background ───────────────────────────────────────── */
-    .bg-glow {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      overflow: hidden;
-    }
-    .bg-glow .orb {
-      position: absolute; border-radius: 50%;
-      filter: blur(120px); opacity: 0.15;
-      animation: float 20s ease-in-out infinite;
-    }
-    .bg-glow .orb:nth-child(1) {
-      width: 600px; height: 600px; top: -10%; left: -5%;
-      background: #6366f1; animation-delay: 0s;
-    }
-    .bg-glow .orb:nth-child(2) {
-      width: 500px; height: 500px; bottom: -10%; right: -5%;
-      background: #a855f7; animation-delay: -7s;
-    }
-    .bg-glow .orb:nth-child(3) {
-      width: 400px; height: 400px; top: 40%; left: 50%;
-      background: #3b82f6; animation-delay: -14s;
-    }
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-20px, 30px) scale(0.9); }
-    }
+        /* ── Animated Background ───────────────────────────────────────── */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
 
-    /* ── Layout ────────────────────────────────────────────────────── */
-    .app { position: relative; z-index: 1; }
+        .bg-glow .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
 
-    .header {
-      padding: 24px 40px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(20px);
-      background: rgba(10,10,15,0.7);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .logo {
-      display: flex; align-items: center; gap: 12px;
-      font-size: 20px; font-weight: 800;
-      background: var(--gradient-main); -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .logo svg { width: 32px; height: 32px; }
-    .badge {
-      font-size: 11px; font-weight: 600; padding: 4px 10px;
-      border-radius: 20px; background: var(--gradient-subtle);
-      color: var(--accent-1); border: 1px solid var(--border-active);
-    }
+        .bg-glow .orb:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            top: -10%;
+            left: -5%;
+            background: #6366f1;
+            animation-delay: 0s;
+        }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+        .bg-glow .orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            bottom: -10%;
+            right: -5%;
+            background: #a855f7;
+            animation-delay: -7s;
+        }
 
-    /* ── Tab Navigation ────────────────────────────────────────────── */
-    .tabs {
-      display: flex; gap: 4px; padding: 4px;
-      background: var(--bg-card);
-      border-radius: var(--radius); border: 1px solid var(--border);
-      margin-bottom: 32px;
-    }
-    .tab {
-      flex: 1; padding: 12px 16px; border: none; cursor: pointer;
-      background: transparent; color: var(--text-secondary);
-      font-family: inherit; font-size: 14px; font-weight: 500;
-      border-radius: 12px; transition: var(--transition);
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .tab:hover { color: var(--text-primary); background: var(--bg-card-hover); }
-    .tab.active {
-      color: #fff; background: var(--gradient-main);
-      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
-    }
-    .tab-panel { display: none; animation: fadeUp 0.4s ease; }
-    .tab-panel.active { display: block; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .bg-glow .orb:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            left: 50%;
+            background: #3b82f6;
+            animation-delay: -14s;
+        }
 
-    /* ── Cards ──────────────────────────────────────────────────────── */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      backdrop-filter: blur(12px);
-      transition: var(--transition);
-    }
-    .card:hover { border-color: var(--border-active); }
-    .card-title {
-      font-size: 16px; font-weight: 700; margin-bottom: 4px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+        @keyframes float {
 
-    /* ── Drop Zone ─────────────────────────────────────────────────── */
-    .dropzone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transition);
-      position: relative;
-    }
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--accent-1);
-      background: rgba(99,102,241,0.05);
-    }
-    .dropzone input { display: none; }
-    .dropzone-icon {
-      width: 56px; height: 56px; margin: 0 auto 16px;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      background: var(--gradient-subtle); border: 1px solid var(--border-active);
-    }
-    .dropzone-text { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
-    .dropzone-sub { font-size: 13px; color: var(--text-muted); }
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
 
-    /* ── Buttons ────────────────────────────────────────────────────── */
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 24px; border: none; border-radius: var(--radius-sm);
-      font-family: inherit; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: var(--transition);
-    }
-    .btn-primary {
-      background: var(--gradient-main); color: #fff;
-      box-shadow: 0 4px 20px rgba(99,102,241,0.25);
-    }
-    .btn-primary:hover {
-      box-shadow: 0 6px 28px rgba(99,102,241,0.4);
-      transform: translateY(-1px);
-    }
-    .btn-primary:disabled {
-      opacity: 0.5; cursor: not-allowed; transform: none;
-      box-shadow: none;
-    }
-    .btn-secondary {
-      background: var(--bg-card); color: var(--text-primary);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { border-color: var(--border-active); }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
 
-    /* ── Progress ───────────────────────────────────────────────────── */
-    .progress-container { margin-top: 20px; display: none; }
-    .progress-container.visible { display: block; }
-    .progress-bar-bg {
-      height: 6px; background: var(--bg-card); border-radius: 3px;
-      overflow: hidden; margin-bottom: 8px;
-    }
-    .progress-bar {
-      height: 100%; width: 0; border-radius: 3px;
-      background: var(--gradient-main);
-      transition: width 0.5s ease;
-    }
-    .progress-status {
-      font-size: 13px; color: var(--text-secondary);
-      display: flex; justify-content: space-between;
-    }
+            66% {
+                transform: translate(-20px, 30px) scale(0.9);
+            }
+        }
 
-    /* ── Results ────────────────────────────────────────────────────── */
-    .results { margin-top: 24px; }
-    .result-section {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 20px; margin-bottom: 16px;
-    }
-    .result-section h3 {
-      font-size: 14px; font-weight: 700; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .result-section pre {
-      background: rgba(0,0,0,0.3); padding: 16px;
-      border-radius: 8px; overflow-x: auto;
-      font-size: 12px; line-height: 1.5;
-      color: var(--text-secondary); white-space: pre-wrap;
-      max-height: 400px; overflow-y: auto;
-    }
+        /* ── Layout ────────────────────────────────────────────────────── */
+        .app {
+            position: relative;
+            z-index: 1;
+        }
 
-    .metric-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px; margin-bottom: 16px;
-    }
-    .metric {
-      background: var(--bg-secondary); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 16px; text-align: center;
-    }
-    .metric-value {
-      font-size: 24px; font-weight: 800;
-      background: var(--gradient-main); -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .metric-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header {
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.7);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-    /* ── Concept Tags ──────────────────────────────────────────────── */
-    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag {
-      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
-      background: var(--gradient-subtle); border: 1px solid var(--border-active);
-      color: var(--accent-1);
-    }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    /* ── Question Cards ────────────────────────────────────────────── */
-    .question-group { margin-bottom: 16px; }
-    .question-group h4 {
-      font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;
-    }
-    .question-item {
-      padding: 12px 16px; background: rgba(0,0,0,0.2);
-      border-radius: 8px; margin-bottom: 6px;
-      font-size: 13px; line-height: 1.5;
-      border-left: 3px solid var(--accent-1);
-    }
-    .question-group.medium .question-item { border-left-color: var(--warning); }
-    .question-group.hard .question-item { border-left-color: var(--error); }
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
 
-    /* ── Live Stream ───────────────────────────────────────────────── */
-    .stream-layout {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-    }
-    @media (max-width: 768px) { .stream-layout { grid-template-columns: 1fr; } }
-    .video-preview {
-      width: 100%; border-radius: var(--radius-sm);
-      background: #000; aspect-ratio: 16/9; object-fit: cover;
-    }
-    .stream-log {
-      background: rgba(0,0,0,0.4); border-radius: var(--radius-sm);
-      padding: 16px; max-height: 400px; overflow-y: auto;
-      font-family: 'JetBrains Mono', monospace; font-size: 12px;
-      line-height: 1.6; color: var(--text-secondary);
-    }
-    .log-entry { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-    .log-entry .time { color: var(--accent-1); margin-right: 8px; }
-    .log-entry .label { color: var(--success); }
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--gradient-subtle);
+            color: var(--accent-1);
+            border: 1px solid var(--border-active);
+        }
 
-    /* ── Formula block ─────────────────────────────────────────────── */
-    .formula-card {
-      padding: 14px 18px; background: rgba(99,102,241,0.05);
-      border: 1px solid rgba(99,102,241,0.15);
-      border-radius: 10px; margin-bottom: 10px;
-    }
-    .formula-latex {
-      font-size: 16px; font-weight: 600; font-family: 'Cambria Math', serif;
-      margin-bottom: 4px;
-    }
-    .formula-explain { font-size: 12px; color: var(--text-secondary); }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
 
-    /* ── Highlight timeline ────────────────────────────────────────── */
-    .highlight-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 14px; background: rgba(0,0,0,0.2);
-      border-radius: 8px; margin-bottom: 8px;
-    }
-    .highlight-time {
-      font-size: 12px; font-weight: 700; color: var(--accent-1);
-      min-width: 50px;
-    }
-    .highlight-text { font-size: 13px; }
+        /* ── Tab Navigation ────────────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
 
-    /* ── Buttons row ───────────────────────────────────────────────── */
-    .btn-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-    /* ── Footer ────────────────────────────────────────────────────── */
-    .footer {
-      text-align: center; padding: 32px; font-size: 12px;
-      color: var(--text-muted); border-top: 1px solid var(--border);
-    }
-    .footer a { color: var(--accent-1); text-decoration: none; }
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+        }
 
-    /* ── Spinner ────────────────────────────────────────────────────── */
-    .spinner {
-      display: inline-block; width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+        .tab.active {
+            color: #fff;
+            background: var(--gradient-main);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
 
-    /* ── Toast ──────────────────────────────────────────────────────── */
-    .toast-container {
-      position: fixed; bottom: 24px; right: 24px;
-      z-index: 999; display: flex; flex-direction: column; gap: 8px;
-    }
-    .toast {
-      background: var(--bg-secondary); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px 20px;
-      font-size: 13px; box-shadow: var(--shadow);
-      animation: slideIn 0.3s ease;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .toast.success { border-left: 3px solid var(--success); }
-    .toast.error { border-left: 3px solid var(--error); }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-  </style>
+        .tab-panel {
+            display: none;
+            animation: fadeUp 0.4s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Cards ──────────────────────────────────────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--border-active);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* ── Drop Zone ─────────────────────────────────────────────────── */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .dropzone:hover,
+        .dropzone.dragover {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .dropzone input {
+            display: none;
+        }
+
+        .dropzone-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-subtle);
+            border: 1px solid var(--border-active);
+        }
+
+        .dropzone-text {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .dropzone-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Buttons ────────────────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 28px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-active);
+        }
+
+        /* ── Progress ───────────────────────────────────────────────────── */
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-container.visible {
+            display: block;
+        }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 3px;
+            background: var(--gradient-main);
+            transition: width 0.5s ease;
+        }
+
+        .progress-status {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── Results ────────────────────────────────────────────────────── */
+        .results {
+            margin-top: 24px;
+        }
+
+        .result-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .result-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-section pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Concept Tags ──────────────────────────────────────────────── */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--gradient-subtle);
+            border: 1px solid var(--border-active);
+            color: var(--accent-1);
+        }
+
+        /* ── Question Cards ────────────────────────────────────────────── */
+        .question-group {
+            margin-bottom: 16px;
+        }
+
+        .question-group h4 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .question-item {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            border-left: 3px solid var(--accent-1);
+        }
+
+        .question-group.medium .question-item {
+            border-left-color: var(--warning);
+        }
+
+        .question-group.hard .question-item {
+            border-left-color: var(--error);
+        }
+
+        /* ── Live Stream ───────────────────────────────────────────────── */
+        .stream-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stream-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-preview {
+            width: 100%;
+            border-radius: var(--radius-sm);
+            background: #000;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .stream-log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .log-entry .time {
+            color: var(--accent-1);
+            margin-right: 8px;
+        }
+
+        .log-entry .label {
+            color: var(--success);
+        }
+
+        /* ── Formula block ─────────────────────────────────────────────── */
+        .formula-card {
+            padding: 14px 18px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .formula-latex {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Cambria Math', serif;
+            margin-bottom: 4px;
+        }
+
+        .formula-explain {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Highlight timeline ────────────────────────────────────────── */
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .highlight-time {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-1);
+            min-width: 50px;
+        }
+
+        .highlight-text {
+            font-size: 13px;
+        }
+
+        /* ── Buttons row ───────────────────────────────────────────────── */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Footer ────────────────────────────────────────────────────── */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer a {
+            color: var(--accent-1);
+            text-decoration: none;
+        }
+
+        /* ── Spinner ────────────────────────────────────────────────────── */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Toast ──────────────────────────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--error);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <!-- Background animation -->
-  <div class="bg-glow">
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-  </div>
-
-  <div class="app">
-    <!-- Header -->
-    <header class="header">
-      <div class="logo">
-        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="url(#g)" stroke-width="2.5"/><path d="M10 16l4 4 8-8" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs></svg>
-        Vision Agent
-      </div>
-      <span class="badge">WeMakeDevs Hackathon 2026</span>
-    </header>
-
-    <div class="container">
-      <!-- Tabs -->
-      <div class="tabs" id="tabNav">
-        <button class="tab active" data-tab="upload" id="tabUpload">
-          <span>📤</span> Upload &amp; Analyze
-        </button>
-        <button class="tab" data-tab="notes" id="tabNotes">
-          <span>📝</span> AI Notes
-        </button>
-        <button class="tab" data-tab="stream" id="tabStream">
-          <span>📡</span> Live Stream
-        </button>
-      </div>
-
-      <!-- ═══════════════ TAB 1: Upload & Analyze ═══════════════ -->
-      <div class="tab-panel active" id="panelUpload">
-        <div class="card">
-          <div class="card-title">🎬 Upload Video</div>
-          <div class="card-desc">Upload a short video (10–60 s recommended). The agent will extract frames, transcribe audio, and detect objects.</div>
-
-          <div class="dropzone" id="dropzone">
-            <input type="file" id="fileInput" accept="video/*" />
-            <div class="dropzone-icon">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--accent-1)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <div class="dropzone-text">Drag & drop your video here</div>
-            <div class="dropzone-sub">or click to browse — MP4, MOV, WebM supported</div>
-          </div>
-
-          <div class="progress-container" id="progressArea">
-            <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="progress-status">
-              <span id="progressLabel">Uploading…</span>
-              <span id="progressPct">0%</span>
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" id="btnUpload" disabled>
-              <span>📤</span> Upload Only (Frames)
-            </button>
-            <button class="btn btn-primary" id="btnAnalyze" disabled>
-              <span>🔬</span> Full Analysis
-            </button>
-          </div>
-        </div>
-
-        <!-- Results -->
-        <div class="results" id="uploadResults" style="display:none">
-          <div class="metric-grid" id="metricsGrid"></div>
-          <div class="result-section" id="transcriptSection" style="display:none">
-            <h3>🎙️ Transcript</h3>
-            <pre id="transcriptText"></pre>
-          </div>
-          <div class="result-section" id="detectionsSection" style="display:none">
-            <h3>🔍 Detections Summary</h3>
-            <pre id="detectionsText"></pre>
-          </div>
-          <div class="result-section" id="rawJsonSection">
-            <h3>📄 Raw JSON</h3>
-            <pre id="rawJson"></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════ TAB 2: AI Notes ═══════════════════════ -->
-      <div class="tab-panel" id="panelNotes">
-        <div class="card">
-          <div class="card-title">🧠 Generate AI Study Notes</div>
-          <div class="card-desc">Uses an LLM (OpenAI) to turn transcript + detections into structured notes, formulas, and viva questions. Requires running Full Analysis first.</div>
-
-          <div style="display:flex;gap:12px;align-items:center">
-            <input type="text" id="noteStem" value="video" placeholder="video stem name"
-              style="flex:1;padding:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:14px" />
-            <button class="btn btn-primary" id="btnNotes">
-              <span>✨</span> Generate Notes
-            </button>
-          </div>
-        </div>
-
-        <div class="results" id="notesResults" style="display:none">
-          <!-- Summary -->
-          <div class="result-section" id="notesSummarySection">
-            <h3>📋 Summary</h3>
-            <p id="notesSummary" style="font-size:14px;line-height:1.7;color:var(--text-secondary)"></p>
-          </div>
-          <!-- Key Concepts -->
-          <div class="result-section" id="notesConceptsSection">
-            <h3>💡 Key Concepts</h3>
-            <div class="tag-list" id="notesConceptTags"></div>
-          </div>
-          <!-- Formulas -->
-          <div class="result-section" id="notesFormulasSection">
-            <h3>📐 Formulas</h3>
-            <div id="notesFormulas"></div>
-          </div>
-          <!-- Viva Questions -->
-          <div class="result-section" id="notesVivaSection">
-            <h3>❓ Viva Questions</h3>
-            <div id="notesViva"></div>
-          </div>
-          <!-- Highlights -->
-          <div class="result-section" id="notesHighlightsSection">
-            <h3>🎯 Highlights</h3>
-            <div id="notesHighlights"></div>
-          </div>
-          <!-- Raw JSON -->
-          <div class="result-section">
-            <h3>📄 Raw Notes JSON</h3>
-            <pre id="notesRawJson"></pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════ TAB 3: Live Stream ════════════════════ -->
-      <div class="tab-panel" id="panelStream">
-        <div class="card">
-          <div class="card-title">📡 Real-Time Video Stream</div>
-          <div class="card-desc">Stream from your webcam in 2-second chunks. Each chunk is processed instantly (frames + transcription + detection).</div>
-
-          <div class="stream-layout">
-            <div>
-              <video id="videoPreview" class="video-preview" autoplay playsinline muted></video>
-              <div class="btn-row" style="margin-top:12px">
-                <button class="btn btn-primary" id="btnStartStream">
-                  <span>▶️</span> Start Stream
-                </button>
-                <button class="btn btn-secondary" id="btnStopStream" disabled>
-                  <span>⏹️</span> Stop
-                </button>
-                <button class="btn btn-secondary" id="btnFinalize" disabled>
-                  <span>🔗</span> Finalize
-                </button>
-              </div>
-              <div class="metric-grid" id="streamMetrics" style="margin-top:16px"></div>
-            </div>
-            <div>
-              <div class="stream-log" id="streamLog">
-                <div style="color:var(--text-muted)">Waiting to start…</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Background animation -->
+    <div class="bg-glow">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
     </div>
 
-    <footer class="footer">
-      Built with ❤️ for the <a href="https://wemakedevs.org" target="_blank">WeMakeDevs</a> Vision Possible Hackathon —
-      Powered by <a href="https://getstream.io/video/vision-agents/" target="_blank">Vision Agents by Stream</a>
-    </footer>
-  </div>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="url(#g)" stroke-width="2.5" />
+                    <path d="M10 16l4 4 8-8" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="32" y2="32">
+                            <stop stop-color="#6366f1" />
+                            <stop offset="1" stop-color="#a855f7" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Vision Agent
+            </div>
+            <span class="badge">WeMakeDevs Hackathon 2026</span>
+        </header>
 
-  <!-- Toast container -->
-  <div class="toast-container" id="toastContainer"></div>
+        <div class="container">
+            <!-- Tabs -->
+            <div class="tabs" id="tabNav">
+                <button class="tab active" data-tab="upload" id="tabUpload">
+                    <span>📤</span> Upload &amp; Analyze
+                </button>
+                <button class="tab" data-tab="notes" id="tabNotes">
+                    <span>📝</span> AI Notes
+                </button>
+                <button class="tab" data-tab="stream" id="tabStream">
+                    <span>📡</span> Live Stream
+                </button>
+            </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <script>
-    // ── Utilities ────────────────────────────────────────────────────
-    function $(sel) { return document.querySelector(sel); }
-    function $$(sel) { return document.querySelectorAll(sel); }
+            <!-- ═══════════════ TAB 1: Upload & Analyze ═══════════════ -->
+            <div class="tab-panel active" id="panelUpload">
+                <div class="card">
+                    <div class="card-title">🎬 Upload Video</div>
+                    <div class="card-desc">Upload a short video (10–60 s recommended). The agent will extract frames,
+                        transcribe audio, and detect objects.</div>
 
-    function toast(msg, type = 'success') {
-      const t = document.createElement('div');
-      t.className = `toast ${type}`;
-      t.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${msg}`;
-      $('#toastContainer').appendChild(t);
-      setTimeout(() => t.remove(), 4000);
-    }
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" accept="video/*" />
+                        <div class="dropzone-icon">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" style="color:var(--accent-1)">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                        </div>
+                        <div class="dropzone-text">Drag & drop your video here</div>
+                        <div class="dropzone-sub">or click to browse — MP4, MOV, WebM supported</div>
+                    </div>
 
-    // ── Tab switching ───────────────────────────────────────────────
-    $$('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        $$('.tab').forEach(t => t.classList.remove('active'));
-        $$('.tab-panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        $(`#panel${capitalise(tab.dataset.tab)}`).classList.add('active');
-      });
-    });
-    function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+                    <div class="progress-container" id="progressArea">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="progress-status">
+                            <span id="progressLabel">Uploading…</span>
+                            <span id="progressPct">0%</span>
+                        </div>
+                    </div>
 
-    // ── Drop Zone ───────────────────────────────────────────────────
-    const dz = $('#dropzone');
-    const fi = $('#fileInput');
-    let selectedFile = null;
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="btnUpload" disabled>
+                            <span>📤</span> Upload Only (Frames)
+                        </button>
+                        <button class="btn btn-primary" id="btnAnalyze" disabled>
+                            <span>🔬</span> Full Analysis
+                        </button>
+                    </div>
+                </div>
 
-    dz.addEventListener('click', () => fi.click());
-    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
-    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-    dz.addEventListener('drop', e => {
-      e.preventDefault(); dz.classList.remove('dragover');
-      if (e.dataTransfer.files.length) { selectedFile = e.dataTransfer.files[0]; onFileSelected(); }
-    });
-    fi.addEventListener('change', () => { if (fi.files.length) { selectedFile = fi.files[0]; onFileSelected(); } });
+                <!-- Results -->
+                <div class="results" id="uploadResults" style="display:none">
+                    <div class="metric-grid" id="metricsGrid"></div>
+                    <div class="result-section" id="transcriptSection" style="display:none">
+                        <h3>🎙️ Transcript</h3>
+                        <pre id="transcriptText"></pre>
+                    </div>
+                    <div class="result-section" id="detectionsSection" style="display:none">
+                        <h3>🔍 Detections Summary</h3>
+                        <pre id="detectionsText"></pre>
+                    </div>
+                    <div class="result-section" id="rawJsonSection">
+                        <h3>📄 Raw JSON</h3>
+                        <pre id="rawJson"></pre>
+                    </div>
+                </div>
+            </div>
 
-    function onFileSelected() {
-      dz.querySelector('.dropzone-text').textContent = selectedFile.name;
-      dz.querySelector('.dropzone-sub').textContent =
-        `${(selectedFile.size / (1024*1024)).toFixed(1)} MB — ready to upload`;
-      $('#btnUpload').disabled = false;
-      $('#btnAnalyze').disabled = false;
-    }
+            <!-- ═══════════════ TAB 2: AI Notes ═══════════════════════ -->
+            <div class="tab-panel" id="panelNotes">
+                <div class="card">
+                    <div class="card-title">🧠 Generate AI Study Notes</div>
+                    <div class="card-desc">Uses an LLM (OpenAI) to turn transcript + detections into structured notes,
+                        formulas, and viva questions. Requires running Full Analysis first.</div>
+                    <div id="notesStemHint"
+                        style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;font-size:13px;color:#22c55e">
+                        ✅ Video stem auto-detected from your last analysis. Click "Generate Notes" to proceed.
+                    </div>
+                    <div id="notesNoAnalysis"
+                        style="margin-bottom:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:13px;color:#f59e0b">
+                        ⚠️ No analysis found yet. Go to "Upload & Analyze" tab and run Full Analysis first.
+                    </div>
 
-    // ── Upload / Analyze ────────────────────────────────────────────
-    async function doUpload(endpoint) {
-      if (!selectedFile) return;
-      const fd = new FormData();
-      fd.append('file', selectedFile);
-      const pa = $('#progressArea');
-      pa.classList.add('visible');
-      $('#progressBar').style.width = '0%';
-      $('#progressLabel').textContent = endpoint === '/upload' ? 'Uploading…' : 'Analyzing (this may take a minute)…';
-      $('#progressPct').textContent = '';
-      $('#btnUpload').disabled = true;
-      $('#btnAnalyze').disabled = true;
+                    <div style="display:flex;gap:12px;align-items:center">
+                        <input type="text" id="noteStem" value="video" placeholder="video stem name"
+                            style="flex:1;padding:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:14px" />
+                        <button class="btn btn-primary" id="btnNotes">
+                            <span>✨</span> Generate Notes
+                        </button>
+                    </div>
+                </div>
 
-      // Fake progress during fetch
-      let pct = 0;
-      const iv = setInterval(() => {
-        pct = Math.min(pct + Math.random() * 8, 92);
-        $('#progressBar').style.width = pct + '%';
-        $('#progressPct').textContent = Math.round(pct) + '%';
-      }, 400);
+                <div class="results" id="notesResults" style="display:none">
+                    <!-- Summary -->
+                    <div class="result-section" id="notesSummarySection">
+                        <h3>📋 Summary</h3>
+                        <p id="notesSummary" style="font-size:14px;line-height:1.7;color:var(--text-secondary)"></p>
+                    </div>
+                    <!-- Key Concepts -->
+                    <div class="result-section" id="notesConceptsSection">
+                        <h3>💡 Key Concepts</h3>
+                        <div class="tag-list" id="notesConceptTags"></div>
+                    </div>
+                    <!-- Formulas -->
+                    <div class="result-section" id="notesFormulasSection">
+                        <h3>📐 Formulas</h3>
+                        <div id="notesFormulas"></div>
+                    </div>
+                    <!-- Viva Questions -->
+                    <div class="result-section" id="notesVivaSection">
+                        <h3>❓ Viva Questions</h3>
+                        <div id="notesViva"></div>
+                    </div>
+                    <!-- Highlights -->
+                    <div class="result-section" id="notesHighlightsSection">
+                        <h3>🎯 Highlights</h3>
+                        <div id="notesHighlights"></div>
+                    </div>
+                    <!-- Raw JSON -->
+                    <div class="result-section">
+                        <h3>📄 Raw Notes JSON</h3>
+                        <pre id="notesRawJson"></pre>
+                    </div>
+                </div>
+            </div>
 
-      try {
-        const resp = await fetch(endpoint, { method: 'POST', body: fd });
-        clearInterval(iv);
-        const data = await resp.json();
-        $('#progressBar').style.width = '100%';
-        $('#progressPct').textContent = '100%';
-        $('#progressLabel').textContent = data.ok ? 'Complete ✓' : 'Error';
-        displayResults(data, endpoint);
-        toast(data.ok ? 'Processing complete!' : `Error: ${data.error}`, data.ok ? 'success' : 'error');
-      } catch (err) {
-        clearInterval(iv);
-        $('#progressLabel').textContent = 'Failed';
-        toast('Network error: ' + err.message, 'error');
-      }
-      $('#btnUpload').disabled = false;
-      $('#btnAnalyze').disabled = false;
-    }
+            <!-- ═══════════════ TAB 3: Live Stream ════════════════════ -->
+            <div class="tab-panel" id="panelStream">
+                <div class="card">
+                    <div class="card-title">📡 Real-Time Video Stream</div>
+                    <div class="card-desc">Stream from your webcam in 2-second chunks. Each chunk is processed instantly
+                        (frames + transcription + detection).</div>
 
-    $('#btnUpload').addEventListener('click', () => doUpload('/upload'));
-    $('#btnAnalyze').addEventListener('click', () => doUpload('/analyze'));
+                    <div class="stream-layout">
+                        <div>
+                            <video id="videoPreview" class="video-preview" autoplay playsinline muted></video>
+                            <div class="btn-row" style="margin-top:12px">
+                                <button class="btn btn-primary" id="btnStartStream">
+                                    <span>▶️</span> Start Stream
+                                </button>
+                                <button class="btn btn-secondary" id="btnStopStream" disabled>
+                                    <span>⏹️</span> Stop
+                                </button>
+                                <button class="btn btn-secondary" id="btnFinalize" disabled>
+                                    <span>🔗</span> Finalize
+                                </button>
+                            </div>
+                            <div class="metric-grid" id="streamMetrics" style="margin-top:16px"></div>
+                        </div>
+                        <div>
+                            <div class="stream-log" id="streamLog">
+                                <div style="color:var(--text-muted)">Waiting to start…</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    function displayResults(data, endpoint) {
-      const area = $('#uploadResults');
-      area.style.display = 'block';
+        <footer class="footer">
+            Built with ❤️ for the <a href="https://wemakedevs.org" target="_blank">WeMakeDevs</a> Vision Possible
+            Hackathon —
+            Powered by <a href="https://getstream.io/video/vision-agents/" target="_blank">Vision Agents by Stream</a>
+        </footer>
+    </div>
 
-      // Metrics
-      const mg = $('#metricsGrid');
-      mg.innerHTML = '';
-      const metrics = [
-        { label: 'Frames', value: data.frames_count ?? '—' },
-      ];
-      if (data.frames_time_seconds !== undefined)
-        metrics.push({ label: 'Frame Time', value: data.frames_time_seconds + 's' });
-      if (data.transcription_time_seconds !== undefined)
-        metrics.push({ label: 'Transcribe', value: data.transcription_time_seconds + 's' });
-      if (data.detection_time_seconds !== undefined)
-        metrics.push({ label: 'Detection', value: data.detection_time_seconds + 's' });
-      if (data.total_time_seconds !== undefined)
-        metrics.push({ label: 'Total', value: data.total_time_seconds + 's' });
-      metrics.forEach(m => {
-        mg.innerHTML += `<div class="metric"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div></div>`;
-      });
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-      // Transcript
-      if (data.transcript && data.transcript.text) {
-        $('#transcriptSection').style.display = 'block';
-        $('#transcriptText').textContent = data.transcript.text;
-      } else {
-        $('#transcriptSection').style.display = 'none';
-      }
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <script>
+        // ── Utilities ────────────────────────────────────────────────────
+        function $(sel) { return document.querySelector(sel); }
+        function $$(sel) { return document.querySelectorAll(sel); }
 
-      // Detections
-      if (data.detections_summary) {
-        $('#detectionsSection').style.display = 'block';
-        $('#detectionsText').textContent = JSON.stringify(data.detections_summary, null, 2);
-      } else {
-        $('#detectionsSection').style.display = 'none';
-      }
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${msg}`;
+            $('#toastContainer').appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
 
-      // Raw JSON
-      $('#rawJson').textContent = JSON.stringify(data, null, 2);
-    }
+        // ── Tab switching ───────────────────────────────────────────────
+        $$('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                $$('.tab').forEach(t => t.classList.remove('active'));
+                $$('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                $(`#panel${capitalise(tab.dataset.tab)}`).classList.add('active');
+            });
+        });
+        function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    // ── Notes Generation ────────────────────────────────────────────
-    $('#btnNotes').addEventListener('click', async () => {
-      const stem = $('#noteStem').value.trim() || 'video';
-      $('#btnNotes').disabled = true;
-      $('#btnNotes').innerHTML = '<span class="spinner"></span> Generating…';
-      try {
-        const resp = await fetch(`/generate_notes?video_stem=${encodeURIComponent(stem)}`, { method: 'POST' });
-        const data = await resp.json();
-        if (data.detail) throw new Error(data.detail);
-        displayNotes(data);
-        toast('Notes generated successfully!');
-      } catch (err) {
-        toast('Error: ' + err.message, 'error');
-      }
-      $('#btnNotes').disabled = false;
-      $('#btnNotes').innerHTML = '<span>✨</span> Generate Notes';
-    });
+        // ── Drop Zone ───────────────────────────────────────────────────
+        const dz = $('#dropzone');
+        const fi = $('#fileInput');
+        let selectedFile = null;
 
-    function displayNotes(n) {
-      $('#notesResults').style.display = 'block';
+        dz.addEventListener('click', () => fi.click());
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault(); dz.classList.remove('dragover');
+            if (e.dataTransfer.files.length) { selectedFile = e.dataTransfer.files[0]; onFileSelected(); }
+        });
+        fi.addEventListener('change', () => { if (fi.files.length) { selectedFile = fi.files[0]; onFileSelected(); } });
 
-      // Summary
-      $('#notesSummary').textContent = n.summary || '—';
+        function onFileSelected() {
+            dz.querySelector('.dropzone-text').textContent = selectedFile.name;
+            dz.querySelector('.dropzone-sub').textContent =
+                `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB — ready to upload`;
+            $('#btnUpload').disabled = false;
+            $('#btnAnalyze').disabled = false;
+        }
 
-      // Key concepts
-      const tags = $('#notesConceptTags');
-      tags.innerHTML = '';
-      (n.key_concepts || []).forEach(c => {
-        tags.innerHTML += `<span class="tag">${c}</span>`;
-      });
+        // ── Upload / Analyze ────────────────────────────────────────────
+        async function doUpload(endpoint) {
+            if (!selectedFile) return;
+            const fd = new FormData();
+            fd.append('file', selectedFile);
+            const pa = $('#progressArea');
+            pa.classList.add('visible');
+            $('#progressBar').style.width = '0%';
+            $('#progressLabel').textContent = endpoint === '/upload' ? 'Uploading…' : 'Analyzing (this may take a minute)…';
+            $('#progressPct').textContent = '';
+            $('#btnUpload').disabled = true;
+            $('#btnAnalyze').disabled = true;
 
-      // Formulas
-      const fArea = $('#notesFormulas');
-      fArea.innerHTML = '';
-      (n.formulas || []).forEach(f => {
-        fArea.innerHTML += `<div class="formula-card">
+            // Fake progress during fetch
+            let pct = 0;
+            const iv = setInterval(() => {
+                pct = Math.min(pct + Math.random() * 8, 92);
+                $('#progressBar').style.width = pct + '%';
+                $('#progressPct').textContent = Math.round(pct) + '%';
+            }, 400);
+
+            try {
+                const resp = await fetch(endpoint, { method: 'POST', body: fd });
+                clearInterval(iv);
+                const data = await resp.json();
+                $('#progressBar').style.width = '100%';
+                $('#progressPct').textContent = '100%';
+                if (data.ok && data.warnings && data.warnings.length) {
+                    $('#progressLabel').textContent = 'Complete with warnings ⚠️';
+                    $('#progressBar').style.background = 'linear-gradient(135deg, #f59e0b, #eab308)';
+                } else {
+                    $('#progressLabel').textContent = data.ok ? 'Complete ✓' : 'Error';
+                    if (!data.ok) $('#progressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                }
+                displayResults(data, endpoint);
+                if (data.ok) {
+                    toast('Processing complete!', 'success');
+                    // Auto-populate video stem in AI Notes tab
+                    if (data.video_stem) {
+                        window._lastVideoStem = data.video_stem;
+                        $('#noteStem').value = data.video_stem;
+                        $('#notesStemHint').style.display = 'block';
+                        $('#notesNoAnalysis').style.display = 'none';
+                    }
+                } else {
+                    toast(`Error: ${data.error}`, 'error');
+                }
+                if (data.warnings) {
+                    data.warnings.forEach(w => toast('⚠️ ' + w, 'error'));
+                }
+            } catch (err) {
+                clearInterval(iv);
+                $('#progressLabel').textContent = 'Failed';
+                toast('Network error: ' + err.message, 'error');
+            }
+            $('#btnUpload').disabled = false;
+            $('#btnAnalyze').disabled = false;
+        }
+
+        $('#btnUpload').addEventListener('click', () => doUpload('/upload'));
+        $('#btnAnalyze').addEventListener('click', () => doUpload('/analyze'));
+
+        function displayResults(data, endpoint) {
+            const area = $('#uploadResults');
+            area.style.display = 'block';
+
+            // Metrics
+            const mg = $('#metricsGrid');
+            mg.innerHTML = '';
+            const metrics = [
+                { label: 'Frames', value: data.frames_count ?? '—' },
+            ];
+            if (data.frames_time_seconds !== undefined)
+                metrics.push({ label: 'Frame Time', value: data.frames_time_seconds + 's' });
+            if (data.transcription_time_seconds !== undefined)
+                metrics.push({ label: 'Transcribe', value: data.transcription_time_seconds + 's' });
+            if (data.detection_time_seconds !== undefined)
+                metrics.push({ label: 'Detection', value: data.detection_time_seconds + 's' });
+            if (data.total_time_seconds !== undefined)
+                metrics.push({ label: 'Total', value: data.total_time_seconds + 's' });
+            metrics.forEach(m => {
+                mg.innerHTML += `<div class="metric"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div></div>`;
+            });
+
+            // Transcript
+            if (data.transcript && data.transcript.text) {
+                $('#transcriptSection').style.display = 'block';
+                $('#transcriptText').textContent = data.transcript.text;
+            } else {
+                $('#transcriptSection').style.display = 'none';
+            }
+
+            // Detections
+            if (data.detections_summary) {
+                $('#detectionsSection').style.display = 'block';
+                $('#detectionsText').textContent = JSON.stringify(data.detections_summary, null, 2);
+            } else {
+                $('#detectionsSection').style.display = 'none';
+            }
+
+            // Raw JSON
+            $('#rawJson').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // ── Notes Generation ────────────────────────────────────────────
+        $('#btnNotes').addEventListener('click', async () => {
+            const stem = $('#noteStem').value.trim() || 'video';
+            $('#btnNotes').disabled = true;
+            $('#btnNotes').innerHTML = '<span class="spinner"></span> Generating…';
+            try {
+                const resp = await fetch(`/generate_notes?video_stem=${encodeURIComponent(stem)}`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.detail) throw new Error(data.detail);
+                displayNotes(data);
+                toast('Notes generated successfully!');
+            } catch (err) {
+                toast('Error: ' + err.message, 'error');
+            }
+            $('#btnNotes').disabled = false;
+            $('#btnNotes').innerHTML = '<span>✨</span> Generate Notes';
+        });
+
+        function displayNotes(n) {
+            $('#notesResults').style.display = 'block';
+
+            // Summary
+            $('#notesSummary').textContent = n.summary || '—';
+
+            // Key concepts
+            const tags = $('#notesConceptTags');
+            tags.innerHTML = '';
+            (n.key_concepts || []).forEach(c => {
+                tags.innerHTML += `<span class="tag">${c}</span>`;
+            });
+
+            // Formulas
+            const fArea = $('#notesFormulas');
+            fArea.innerHTML = '';
+            (n.formulas || []).forEach(f => {
+                fArea.innerHTML += `<div class="formula-card">
           <div class="formula-latex">${f.latex || ''}</div>
           <div class="formula-explain">${f.explanation || ''} ${f.timestamp ? `(t=${f.timestamp}s)` : ''}</div>
         </div>`;
-      });
+            });
 
-      // Viva
-      const vArea = $('#notesViva');
-      vArea.innerHTML = '';
-      const viva = n.viva_questions || {};
-      ['easy', 'medium', 'hard'].forEach(level => {
-        if (viva[level] && viva[level].length) {
-          let html = `<div class="question-group ${level}"><h4>${level}</h4>`;
-          viva[level].forEach(q => { html += `<div class="question-item">${q}</div>`; });
-          html += '</div>';
-          vArea.innerHTML += html;
-        }
-      });
+            // Viva
+            const vArea = $('#notesViva');
+            vArea.innerHTML = '';
+            const viva = n.viva_questions || {};
+            ['easy', 'medium', 'hard'].forEach(level => {
+                if (viva[level] && viva[level].length) {
+                    let html = `<div class="question-group ${level}"><h4>${level}</h4>`;
+                    viva[level].forEach(q => { html += `<div class="question-item">${q}</div>`; });
+                    html += '</div>';
+                    vArea.innerHTML += html;
+                }
+            });
 
-      // Highlights
-      const hArea = $('#notesHighlights');
-      hArea.innerHTML = '';
-      (n.highlights || []).forEach(h => {
-        hArea.innerHTML += `<div class="highlight-item">
+            // Highlights
+            const hArea = $('#notesHighlights');
+            hArea.innerHTML = '';
+            (n.highlights || []).forEach(h => {
+                hArea.innerHTML += `<div class="highlight-item">
           <div class="highlight-time">${h.timestamp ? h.timestamp + 's' : '—'}</div>
           <div class="highlight-text">${h.text || ''}</div>
         </div>`;
-      });
+            });
 
-      // Raw
-      $('#notesRawJson').textContent = JSON.stringify(n, null, 2);
-    }
+            // Raw
+            $('#notesRawJson').textContent = JSON.stringify(n, null, 2);
+        }
 
-    // ── Live Streaming (Day 4) ──────────────────────────────────────
-    let mediaRecorder = null;
-    let webcamStream = null;
-    let chunkIdx = 0;
-    let totalChunks = 0;
-    let totalElapsed = 0;
-    const videoStem = 'live_' + Date.now();
+        // ── Live Streaming (Day 4) ──────────────────────────────────────
+        let mediaRecorder = null;
+        let webcamStream = null;
+        let chunkIdx = 0;
+        let totalChunks = 0;
+        let totalElapsed = 0;
+        const videoStem = 'live_' + Date.now();
 
-    function addLog(msg, labelClass) {
-      const log = $('#streamLog');
-      const t = new Date().toLocaleTimeString();
-      log.innerHTML += `<div class="log-entry"><span class="time">[${t}]</span> ${msg}</div>`;
-      log.scrollTop = log.scrollHeight;
-    }
+        function addLog(msg, labelClass) {
+            const log = $('#streamLog');
+            const t = new Date().toLocaleTimeString();
+            log.innerHTML += `<div class="log-entry"><span class="time">[${t}]</span> ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
 
-    function updateStreamMetrics() {
-      const mg = $('#streamMetrics');
-      mg.innerHTML = `
+        function updateStreamMetrics() {
+            const mg = $('#streamMetrics');
+            mg.innerHTML = `
         <div class="metric"><div class="metric-value">${totalChunks}</div><div class="metric-label">Chunks</div></div>
         <div class="metric"><div class="metric-value">${totalElapsed.toFixed(1)}s</div><div class="metric-label">Total Time</div></div>
         <div class="metric"><div class="metric-value">${totalChunks > 0 ? (totalElapsed / totalChunks).toFixed(2) + 's' : '—'}</div><div class="metric-label">Avg / Chunk</div></div>
       `;
-    }
-
-    $('#btnStartStream').addEventListener('click', async () => {
-      try {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        $('#videoPreview').srcObject = webcamStream;
-
-        // Determine supported mimeType
-        let mimeType = 'video/webm;codecs=vp8,opus';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = 'video/webm';
         }
 
-        mediaRecorder = new MediaRecorder(webcamStream, { mimeType });
-        chunkIdx = 0; totalChunks = 0; totalElapsed = 0;
-        $('#streamLog').innerHTML = '';
-        addLog('🟢 Stream started — sending 2s chunks');
+        $('#btnStartStream').addEventListener('click', async () => {
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                $('#videoPreview').srcObject = webcamStream;
 
-        mediaRecorder.ondataavailable = async (e) => {
-          if (!e.data || e.data.size === 0) return;
-          chunkIdx++;
-          totalChunks++;
-          addLog(`📤 Sending chunk #${chunkIdx} (${(e.data.size/1024).toFixed(0)} KB)…`);
+                // Determine supported mimeType
+                let mimeType = 'video/webm;codecs=vp8,opus';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'video/webm';
+                }
 
-          const fd = new FormData();
-          fd.append('video_stem', videoStem);
-          fd.append('chunk_index', chunkIdx);
-          fd.append('total_chunks', 0);
-          fd.append('file', e.data, `chunk_${String(chunkIdx).padStart(3, '0')}.webm`);
+                mediaRecorder = new MediaRecorder(webcamStream, { mimeType });
+                chunkIdx = 0; totalChunks = 0; totalElapsed = 0;
+                $('#streamLog').innerHTML = '';
+                addLog('🟢 Stream started — sending 2s chunks');
 
-          const t0 = performance.now();
-          try {
-            const resp = await fetch('/stream_chunk', { method: 'POST', body: fd });
-            const j = await resp.json();
-            const ms = performance.now() - t0;
-            totalElapsed += ms / 1000;
-            if (j.ok) {
-              addLog(`✅ Chunk #${j.chunk_index} — ${j.elapsed_seconds}s server, ${(ms/1000).toFixed(2)}s total`);
-              if (j.transcript_snippet) addLog(`🎙️ "${j.transcript_snippet.slice(0,80)}…"`);
-              if (j.top_labels && j.top_labels.length) {
-                addLog(`🔍 Labels: ${j.top_labels.map(l => `<span class="label">${l.label}(${l.count})</span>`).join(', ')}`);
-              }
-            } else {
-              addLog(`❌ Error: ${j.error}`);
+                mediaRecorder.ondataavailable = async (e) => {
+                    if (!e.data || e.data.size === 0) return;
+                    chunkIdx++;
+                    totalChunks++;
+                    addLog(`📤 Sending chunk #${chunkIdx} (${(e.data.size / 1024).toFixed(0)} KB)…`);
+
+                    const fd = new FormData();
+                    fd.append('video_stem', videoStem);
+                    fd.append('chunk_index', chunkIdx);
+                    fd.append('total_chunks', 0);
+                    fd.append('file', e.data, `chunk_${String(chunkIdx).padStart(3, '0')}.webm`);
+
+                    const t0 = performance.now();
+                    try {
+                        const resp = await fetch('/stream_chunk', { method: 'POST', body: fd });
+                        const j = await resp.json();
+                        const ms = performance.now() - t0;
+                        totalElapsed += ms / 1000;
+                        if (j.ok) {
+                            addLog(`✅ Chunk #${j.chunk_index} — ${j.elapsed_seconds}s server, ${(ms / 1000).toFixed(2)}s total`);
+                            if (j.transcript_snippet) addLog(`🎙️ "${j.transcript_snippet.slice(0, 80)}…"`);
+                            if (j.top_labels && j.top_labels.length) {
+                                addLog(`🔍 Labels: ${j.top_labels.map(l => `<span class="label">${l.label}(${l.count})</span>`).join(', ')}`);
+                            }
+                        } else {
+                            addLog(`❌ Error: ${j.error}`);
+                        }
+                    } catch (err) {
+                        addLog(`❌ Network error: ${err.message}`);
+                    }
+                    updateStreamMetrics();
+                };
+
+                mediaRecorder.start(2000); // 2-second chunks
+                $('#btnStartStream').disabled = true;
+                $('#btnStopStream').disabled = false;
+                $('#btnFinalize').disabled = true;
+            } catch (err) {
+                toast('Webcam access denied: ' + err.message, 'error');
             }
-          } catch (err) {
-            addLog(`❌ Network error: ${err.message}`);
-          }
-          updateStreamMetrics();
-        };
+        });
 
-        mediaRecorder.start(2000); // 2-second chunks
-        $('#btnStartStream').disabled = true;
-        $('#btnStopStream').disabled = false;
-        $('#btnFinalize').disabled = true;
-      } catch (err) {
-        toast('Webcam access denied: ' + err.message, 'error');
-      }
-    });
+        $('#btnStopStream').addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+            $('#videoPreview').srcObject = null;
+            addLog('🔴 Stream stopped');
+            $('#btnStartStream').disabled = false;
+            $('#btnStopStream').disabled = true;
+            $('#btnFinalize').disabled = false;
+        });
 
-    $('#btnStopStream').addEventListener('click', () => {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
-      $('#videoPreview').srcObject = null;
-      addLog('🔴 Stream stopped');
-      $('#btnStartStream').disabled = false;
-      $('#btnStopStream').disabled = true;
-      $('#btnFinalize').disabled = false;
-    });
-
-    $('#btnFinalize').addEventListener('click', async () => {
-      addLog('🔗 Finalizing — stitching chunks and running full analysis…');
-      $('#btnFinalize').disabled = true;
-      const fd = new FormData();
-      fd.append('video_stem', videoStem);
-      try {
-        const resp = await fetch('/stream_finalize', { method: 'POST', body: fd });
-        const data = await resp.json();
-        addLog('✅ Finalize complete — see Upload tab for full results');
-        // Switch to upload tab
-        $('#tabUpload').click();
-        displayResults(data, '/analyze');
-        toast('Stream finalized & full analysis ready!');
-      } catch (err) {
-        addLog(`❌ Finalize error: ${err.message}`);
-        toast('Finalize error: ' + err.message, 'error');
-      }
-    });
-  </script>
+        $('#btnFinalize').addEventListener('click', async () => {
+            addLog('🔗 Finalizing — stitching chunks and running full analysis…');
+            $('#btnFinalize').disabled = true;
+            const fd = new FormData();
+            fd.append('video_stem', videoStem);
+            try {
+                const resp = await fetch('/stream_finalize', { method: 'POST', body: fd });
+                const data = await resp.json();
+                addLog('✅ Finalize complete — see Upload tab for full results');
+                // Switch to upload tab
+                $('#tabUpload').click();
+                displayResults(data, '/analyze');
+                toast('Stream finalized & full analysis ready!');
+            } catch (err) {
+                addLog(`❌ Finalize error: ${err.message}`);
+                toast('Finalize error: ' + err.message, 'error');
+            }
+        });
+    </script>
 </body>
+
 </html>
