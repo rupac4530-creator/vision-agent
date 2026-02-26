@@ -4,6 +4,7 @@
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"/>
   <img src="https://img.shields.io/github/stars/rupac4530-creator/vision-agent?style=for-the-badge&color=gold" alt="Stars"/>
+  <img src="https://img.shields.io/badge/🎓_First_Hackathon-Class_12_Student-ff69b4?style=for-the-badge" alt="First Hackathon"/>
 </p>
 
 <h1 align="center">🤖 Vision Agent — Multi-Modal AI Platform</h1>
@@ -27,15 +28,26 @@
 
 ---
 
+<p align="center">
+  <img src="assets/screenshots/platform-banner.png" alt="Vision Agent Platform" width="800"/>
+</p>
+
+---
+
 ## 👤 About the Creator
 
 | | Details |
 |---|---|
-| **Name** | Bedanta Chatterjee |
+| **Name** | **Bedanta Chatterjee** |
 | **GitHub** | [@rupac4530-creator](https://github.com/rupac4530-creator) |
-| **LinkedIn** | [Bedanta Chatterjee](https://www.linkedin.com/in/bedanta-chatterjee-6286ba236) |
+| **LinkedIn** | [Connect on LinkedIn](https://www.linkedin.com/in/bedanta-chatterjee-6286ba236) |
 | **Country** | 🇮🇳 India |
+| **School** | S.E. Rly Mixed H.S. School (Class 12) |
 | **Hackathon** | [Vision Possible](https://github.com/GetStream/Vision-Agents) by WeMakeDevs × Stream |
+
+> 🎓 **This is my first hackathon ever!** I'm a Class 12 student currently preparing for my board exams, deeply passionate about AI, coding, and building things that push the boundaries of what's possible. I believe in learning by doing — and this project is the result of that philosophy. I'm endlessly curious about multi-modal AI, real-time systems, and making technology accessible to everyone.
+>
+> 🛠️ **Tools & AI Assistants Used**: [Anti-Gravity](https://deepmind.google/) (Google DeepMind), [Cursor](https://cursor.sh/), and [ChatGPT](https://chat.openai.com/) — these incredible AI coding assistants helped accelerate development and made this ambitious project possible.
 
 ---
 
@@ -330,6 +342,9 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - **[Stream](https://getstream.io/)** — Real-time video infrastructure sponsor
 - **[Ultralytics](https://github.com/ultralytics/ultralytics)** — YOLOv8 object detection & pose estimation
 - **[Google](https://ai.google.dev/)** — Gemini 2.0 Flash LLM
+- **[Anti-Gravity](https://deepmind.google/)** (Google DeepMind) — AI coding assistant
+- **[Cursor](https://cursor.sh/)** — AI-powered code editor
+- **[ChatGPT](https://chat.openai.com/)** — Drafting guidance and planning support
 
 ---
 
@@ -343,4 +358,6 @@ Third-party components are attributed in [THIRD_PARTY_LICENSES.md](backend/THIRD
 
 <p align="center">
   Made with ❤️ by <a href="https://github.com/rupac4530-creator">Bedanta Chatterjee</a> for the <a href="https://github.com/GetStream/Vision-Agents">Vision Possible</a> hackathon
+  <br/>
+  <a href="https://www.linkedin.com/in/bedanta-chatterjee-6286ba236">LinkedIn</a> · <a href="https://github.com/rupac4530-creator">GitHub</a> · <a href="mailto:rupac4530@gmail.com">Email</a>
 </p>
