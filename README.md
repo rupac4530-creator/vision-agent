@@ -28,11 +28,32 @@
 
 ---
 
+## 📸 Platform Preview
+
 <p align="center">
-  <img src="assets/screenshots/platform-banner.png" alt="Vision Agent Platform" width="800"/>
+  <img src="assets/screenshots/01-upload-analyze.png" alt="Upload & Analyze" width="600"/>
+  <br/><em>🎬 Upload & Analyze — Video upload, frame extraction, YOLO detection</em>
 </p>
 
----
+<p align="center">
+  <img src="assets/screenshots/02-live-stream.png" alt="Live Stream" width="600"/>
+  <br/><em>📡 Real-Time Vision Agent Stream — Webcam YOLO detection with agent reasoning</em>
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/03-dashboard.png" alt="Performance Dashboard" width="600"/>
+  <br/><em>📊 Performance Dashboard — LLM cascade status, API latency, session stats</em>
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/04-ai-notes.png" alt="AI Notes" width="600"/>
+  <br/><em>📝 AI Study Notes — LLM-powered structured notes from video content</em>
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/05-characters.png" alt="AI Character Personas" width="600"/>
+  <br/><em>🧙 AI Character Personas — 6 unique AI characters with distinct personalities</em>
+</p>
 
 ## 👤 About the Creator
 
