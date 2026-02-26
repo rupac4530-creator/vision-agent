@@ -15,6 +15,18 @@ Built for the [WeMakeDevs Vision Possible Hackathon](https://wemakedevs.org) —
 
 ---
 
+## 🚀 Live Demo
+
+| | URL |
+|---|---|
+| **Backend** | https://vision-agent-1.onrender.com |
+| **API Docs** | https://vision-agent-1.onrender.com/docs |
+| **Health Check** | https://vision-agent-1.onrender.com/health |
+
+> **Note:** Free-tier Render instances spin down after inactivity. First request may take ~30-50s to cold-start.
+
+---
+
 ## ✨ Features
 
 | Feature | Detail |
