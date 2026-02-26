@@ -44,7 +44,7 @@ jobs:
   deploy-railway:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    if: ${{ vars.RAILWAY_ENABLED == 'true' }}
     steps:
       - uses: actions/checkout@v4
 

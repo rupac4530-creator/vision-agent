@@ -7,6 +7,12 @@
   <img src="https://img.shields.io/badge/🎓_First_Hackathon-Class_12_Student-ff69b4?style=for-the-badge" alt="First Hackathon"/>
 </p>
 
+<p align="center">
+  <a href="https://vision-agent-m23w.onrender.com"><img src="https://img.shields.io/badge/🚀_Live_Demo-Try_Now-00C853?style=for-the-badge" alt="Live Demo"/></a>
+  <a href="https://vision-agent-m23w.onrender.com/health"><img src="https://img.shields.io/badge/API-Online-brightgreen?style=for-the-badge" alt="API Status"/></a>
+  <a href="https://vision-agent-m23w.onrender.com/docs"><img src="https://img.shields.io/badge/Docs-Swagger-blue?style=for-the-badge" alt="API Docs"/></a>
+</p>
+
 <h1 align="center">🤖 Vision Agent — Multi-Modal AI Platform</h1>
 
 <p align="center">
@@ -18,6 +24,7 @@
 </p>
 
 <p align="center">
+  <a href="https://vision-agent-m23w.onrender.com">🚀 Live Demo</a> •
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-features--17-ai-tabs">Features</a> •
   <a href="#-architecture">Architecture</a> •
@@ -25,6 +32,25 @@
   <a href="#-api-reference">API</a> •
   <a href="#-contributing">Contributing</a>
 </p>
+
+---
+
+## 🚀 Try It Live
+
+> **Live Demo**: [https://vision-agent-m23w.onrender.com](https://vision-agent-m23w.onrender.com)
+>
+> *Free tier — first request may take ~30s to wake the server.*
+
+```bash
+# Check API health
+curl https://vision-agent-m23w.onrender.com/health
+
+# List available LLM providers
+curl https://vision-agent-m23w.onrender.com/models
+
+# Interactive API docs
+open https://vision-agent-m23w.onrender.com/docs
+```
 
 ---
 

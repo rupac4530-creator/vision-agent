@@ -1,6 +1,8 @@
 # Vision Agent — Hackathon Submission Package
 
 > **Everything below is ready to copy-paste.** Each section is labeled with where to use it.
+> 
+> **🚀 Live Demo**: [https://vision-agent-m23w.onrender.com](https://vision-agent-m23w.onrender.com)
 
 ---
 
@@ -64,8 +66,10 @@ Vision Agent is a production-grade, multi-modal AI platform that combines:
 python, fastapi, yolov8, gemini, docker, javascript, html5, css3, vision-agents-sdk, ultralytics, github-actions
 
 ### Try It Out
-GitHub: https://github.com/rupac4530-creator/vision-agent
-Release: https://github.com/rupac4530-creator/vision-agent/releases/tag/v2.0.0
+- **Live Demo**: https://vision-agent-m23w.onrender.com
+- **API Docs**: https://vision-agent-m23w.onrender.com/docs
+- **GitHub**: https://github.com/rupac4530-creator/vision-agent
+- **Release**: https://github.com/rupac4530-creator/vision-agent/releases/tag/v2.0.0
 
 ---
 
