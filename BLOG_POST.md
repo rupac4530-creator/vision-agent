@@ -1,64 +1,61 @@
-# Building a Real-Time Lecture Assistant with Vision Agents and LLMs
+# Building a Real-Time Vision Agent with 2-Tier Intelligence
 
-Lecture recordings are everywhere, but turning them into useful study material is still time-consuming. For the **WeMakeDevs Vision Possible hackathon**, I built **Vision Agent** — a real-time multimodal system that ingests video, extracts audio and frames, and produces concise notes, LaTeX-rendered formulas, and viva-style questions to help students revise faster.
+For the **WeMakeDevs Vision Possible hackathon**, I built **Vision Agent** — a real-time multimodal system that streams webcam video, runs YOLO object detection with bounding box overlays, and uses a 2-tier agent architecture to reason about what it sees: instant deterministic replies + polished LLM analysis with provenance.
 
-## Why this matters
+## Why This Matters
 
-Many students struggle to convert long lectures into exam-ready notes. Vision Agent automates the heavy lifting while preserving **provenance**: every key fact is linked to a transcript excerpt and a video frame, so teachers and students can verify and trust the outputs.
+Most video AI tools process after the fact. Vision Agent processes **during** — each 2-second chunk is analyzed in real-time. Click any detected object and get an instant agent response. This is what a real vision agent should feel like.
 
-## How it works
+## Architecture: The 2-Tier Agent
 
 ```
-Video Upload → Frame Extraction → Audio Extraction
-    ↓                ↓                  ↓
- Thumbnails     YOLOv8 Labels    Whisper Transcript
-    ↓                ↓                  ↓
-              Multimodal Context
-                     ↓
-            LLM (GPT-4o-mini)
-                     ↓
-       Notes + Formulas + Viva Qs + Quiz
+User clicks "person" in live stream
+         │
+    ┌────▼── FastReply (Tier A) ──────┐
+    │ Template + YOLO + transcript    │ < 500ms
+    │ "I see person ×3, context..."   │ deterministic
+    └─────────────────────────────────┘
+         │
+    ┌────▼── PolishReply (Tier B) ────┐
+    │ Full context → Gemini/OpenAI    │ ~3-8s
+    │ Detailed analysis + provenance  │ asynchronous
+    │ Auto-fallback on quota          │ polls /jobs/{id}
+    └─────────────────────────────────┘
 ```
 
-### 1. Chunked Streaming
+**Why 2 tiers?** Because latency matters. Judges (and users) want instant feedback. The FastReply gives it. The PolishReply adds depth. Both cite their sources.
 
-The demo streams 2–5s video chunks for low-latency feedback, using a lightweight local pipeline for fast responses. Each chunk returns a transcript snippet and top visual labels immediately.
+## Core: The Vision Pipeline
 
-### 2. Multimodal Analysis
+1. **Webcam → Chunks**: MediaRecorder captures 2s WebM chunks
+2. **Growing File**: Chunks append to a growing WebM file (handles fragmented containers)
+3. **YOLO Detection**: Singleton `vision_worker.py` runs YOLOv8n on every frame, returns bounding boxes `[x1,y1,x2,y2]` with labels and confidence
+4. **Canvas Overlay**: Boxes are drawn on an HTML Canvas layer over the live video, color-coded per label
+5. **Metrics Dashboard**: 6 real-time metrics — chunks, avg latency, P90, model FPS, frames, objects
 
-For each chunk, audio is transcribed (Whisper for latency) and frames are sampled for vision labels (YOLOv8n). This creates synchronized multimodal context.
+## Technical Decisions
 
-### 3. LLM Synthesis
+- **Singleton YOLO worker** — avoids reloading the model on every chunk. Huge latency win.
+- **Thread-safe metrics store** — per-stream metrics tracked with locks, exposed via `/stream_status`.
+- **LLM provider abstraction** — Gemini + OpenAI with fail-fast on quota errors (429/403). No more infinite hangs.
+- **Async job pattern** — notes generation and LLM polish run in background threads, polled via `/jobs/{id}`.
+- **Provenance** — every agent response tells you where it got its info (detection data, transcript, notes).
 
-A deterministic LLM prompt (temperature 0) turns transcript + frame labels into a final study package: summary, concepts, formulas (LaTeX), and graded viva questions (easy/medium/hard).
+## Performance
 
-### 4. Interactive Features (Day 5)
+| Metric | Value |
+|---|---|
+| FastReply | <500ms |
+| YOLO per-frame | ~50-200ms |
+| Stream chunk E2E | ~2-5s |
+| PolishReply | ~3-8s |
 
-- **Ask a Question**: Contextual QA powered by the same LLM, answering from the transcript and notes
-- **Quiz Generator**: Creates MCQs with plausible distractors and short-answer questions
-- **Timeline Navigation**: Clickable thumbnails jump to specific points in the lecture
-- **Formula Rendering**: MathJax renders LaTeX formulas inline
+## What I Learned
 
-## What I learned
-
-- **Latency vs. quality trade-offs matter.** Using tiny/smaller models gives great interactivity for streaming chunks, but a final pass with stronger models improves quality for the polished notes.
-- **Provenance is essential.** Judges and users trust outputs more when claims are backed by transcript snippets and frame images.
-- **A clean demo and clear metrics** (per-chunk latency, model names, and sample outputs) make the difference in hackathon submissions.
-
-## Demo highlights
-
-- Per-chunk latency: **~2–5s** (whisper + yolov8n on laptop)
-- Outputs: summary, formulas (rendered), 10 viva questions (easy→hard), and an interactive quiz generator
-- Interactive QA chat: ask anything about the lecture content
-
-## Next steps
-
-I'd like to extend Vision Agent to run on the edge (Stream Vision Agents SDK), add speaker diarization for multi-speaker lectures, and integrate better formula extraction (LaTeX OCR for whiteboard content).
+- **Latency perception > raw speed.** The 2-tier pattern makes the app *feel* fast even when the LLM takes 5 seconds.
+- **Bounding boxes change everything.** A bare label list says "person detected." A canvas overlay makes judges go "wow."
+- **Fail-fast on LLM errors.** The early versions hung forever on quota errors. Now they fail in <1 second and fallback gracefully.
 
 ## Thanks
 
-Huge thanks to the **WeMakeDevs** community and the **Vision Agents SDK by Stream** for the tools and inspiration. And to **OpenAI** for the powerful models that make multimodal understanding practical. The code and demo are open on GitHub — link in the submission.
-
----
-
-*Built for the WeMakeDevs Vision Possible: Agent Protocol Hackathon*
+Built for the **WeMakeDevs Vision Possible Hackathon** — powered by Vision Agents SDK by Stream, Gemini, and OpenAI.

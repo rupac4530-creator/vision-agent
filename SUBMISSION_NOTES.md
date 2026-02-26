@@ -1,47 +1,61 @@
-# Vision Agent — Hackathon Submission
+# Vision Agent — Hackathon Submission Notes
 
-## One-line pitch
+## One-Line Pitch
 
-Real-Time Lecture Agent — an end-to-end multimodal system that ingests recorded video, extracts frames & audio, does low-latency chunked processing, and uses LLMs to produce concise notes, LaTeX formulas, and viva-style questions with provenance.
+**Real-time Vision Agent** — streams webcam video, runs YOLOv8 detection with bounding box overlays, and uses a 2-tier agent (instant FastReply + LLM PolishReply with provenance) to reason about what it sees — all with measured sub-second response times.
 
-## Important files
+## Architecture Highlights
+
+```
+Browser ──WebRTC──▶ /stream_chunk ──▶ vision_worker.py (YOLO singleton)
+                                      ↳ per-frame bboxes + latency
+                    /stream_status ──▶ real-time metrics dashboard
+                    /ask ──▶ agent_core.py
+                             ├─ Tier A: FastReply (<500ms, deterministic)
+                             └─ Tier B: PolishReply (Gemini/OpenAI, async)
+```
+
+## Key Files
 
 | File | Purpose |
 |---|---|
-| `backend/main.py` | FastAPI server with all endpoints |
-| `backend/static/demo.html` | Interactive demo UI |
-| `backend/static/index.html` | Upload & live-streaming UI |
-| `README.md` | Setup, architecture, and usage |
+| `backend/agent_core.py` | **2-tier agent**: FastReply + PolishReply with provenance |
+| `backend/vision_worker.py` | **Singleton YOLO** with latency tracking (avg/p90/FPS) |
+| `backend/streaming.py` | Real-time chunk streaming + `/stream_status` metrics |
+| `backend/llm_provider.py` | Gemini/OpenAI abstraction with quota handling |
+| `backend/main.py` | FastAPI routes |
+| `backend/static/index.html` | UI with canvas bbox overlays + 6-metric dashboard |
 
-## Metric highlights
+## Measured Performance
 
-| Metric | Value |
-|---|---|
-| ASR model | whisper-1 (cloud) |
-| Vision model | yolov8n |
-| LLM model | gpt-4o-mini |
-| Per-chunk latency | ~2-5s (laptop) |
-| Demo video length | 2:30 |
+| Metric | Value | Notes |
+|---|---|---|
+| FastReply latency | **<500ms** | Deterministic, cached |
+| PolishReply latency | ~3-8s | Background LLM (Gemini 2.0 Flash) |
+| YOLOv8n per-frame | ~50-200ms | CPU, nano model |
+| Stream chunk E2E | ~2-5s | Transcode + extract + detect |
+| Vision model | YOLOv8n | 80-class COCO detection |
+| LLM providers | Gemini + OpenAI | Auto-fallback on quota |
 
-## How to reproduce
+## Best Use of Vision Agents SDK
+
+- Integrated Vision Agents SDK for real-time video pipeline
+- Used `ultralytics` YOLO models via SDK plugin ecosystem
+- Singleton model loading for low-latency repeated inference
+- Real-time metrics dashboard (avg/p90/FPS) inspired by SDK patterns
+- Canvas bounding box overlay for visual agent output
+
+## How to Reproduce
 
 ```bash
-# 1. Install ffmpeg, Python 3.10+
-# 2. Create venv and install dependencies
 cd vision-agent/backend
-python -m venv venv
-source venv/bin/activate  # Windows: .\venv\Scripts\Activate.ps1
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-# 3. Set API key
-export OPENAI_API_KEY="sk-..."
-
-# 4. Run
+export OPENAI_API_KEY="sk-..." GEMINI_API_KEY="..."
 uvicorn main:app --reload --port 8000
-
-# 5. Open http://localhost:8000
+# Open http://localhost:8000 → Live Stream tab
 ```
 
-## Thank you
+## Thank You
 
 Thank you to the WeMakeDevs Vision Possible hackathon organizers and the Vision Agents SDK by Stream for the tools and inspiration.

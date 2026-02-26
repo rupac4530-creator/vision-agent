@@ -1,0 +1,213 @@
+{
+    "repo": "GetStream/Vision-Agents",
+    "commit": "f684ece",
+    "license": "Apache-2.0",
+    "audit_date": "2026-02-26",
+    "total_upstream_dirs": 8,
+    "files": [
+        {
+            "upstream": "agents-core/vision_agents/core/llm/llm_types.py",
+            "local": "backend/llm_types.py",
+            "status": "imported",
+            "lines": 198
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/llm/llm.py",
+            "local": "backend/llm_base.py",
+            "status": "adapted",
+            "notes": "Removed WebRTC/aiortc deps, adapted to HTTP"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/llm/function_registry.py",
+            "local": "backend/function_registry.py",
+            "status": "adapted",
+            "notes": "Added MCP+Enum support"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/instructions.py",
+            "local": "backend/instructions.py",
+            "status": "imported"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/warmup.py",
+            "local": "backend/warmup_cache.py",
+            "status": "imported"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/rag/rag.py",
+            "local": "backend/rag_engine.py",
+            "status": "adapted",
+            "notes": "Added TF-IDF implementation"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/agents/agents.py",
+            "local": "backend/agent_core.py",
+            "status": "adapted",
+            "notes": "HTTP-adapted, removed Stream edge transport"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/agents/transcript_buffer.py",
+            "local": "backend/transcript_buffer.py",
+            "status": "adapted",
+            "notes": "Enhanced with speaker diarization"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/stt/stt.py",
+            "local": "backend/stt_base.py",
+            "status": "adapted",
+            "notes": "Removed PcmData/getstream deps"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/tts/tts.py",
+            "local": "backend/tts_base.py",
+            "status": "adapted",
+            "notes": "Removed av/PyAV deps, portable audio"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/turn_detection/",
+            "local": "backend/turn_detection.py",
+            "status": "imported"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/events/manager.py",
+            "local": "backend/event_manager.py",
+            "status": "adapted"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/events/manager.py",
+            "local": "backend/event_bus.py",
+            "status": "adapted",
+            "notes": "Enhanced with SSE streaming"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/observability/collector.py",
+            "local": "backend/observability.py",
+            "status": "adapted",
+            "notes": "Added Prometheus output"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/processors/base_processor.py",
+            "local": "backend/video_processor.py",
+            "status": "adapted"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/edge/types.py",
+            "local": "backend/edge_types.py",
+            "status": "adapted",
+            "notes": "Portable PcmData/VideoFrame without WebRTC"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/mcp/",
+            "local": "backend/mcp_tools.py",
+            "status": "adapted",
+            "notes": "HTTP-adapted, removed stdio transport"
+        },
+        {
+            "upstream": "agents-core/vision_agents/core/profiling/",
+            "local": "backend/profiling.py",
+            "status": "adapted",
+            "notes": "Added histogram statistics"
+        },
+        {
+            "upstream": "N/A (platform-specific)",
+            "local": "backend/vad.py",
+            "status": "new",
+            "notes": "Energy-based VAD for audio streams"
+        },
+        {
+            "upstream": "N/A (adapter)",
+            "local": "backend/http_transport.py",
+            "status": "new",
+            "notes": "WebRTC-to-HTTP adapter"
+        },
+        {
+            "upstream": "N/A (platform-specific)",
+            "local": "backend/config.py",
+            "status": "new",
+            "notes": "Feature flags for all providers"
+        },
+        {
+            "upstream": "examples/05_security_camera_example/",
+            "local": "backend/security_cam.py",
+            "status": "adapted",
+            "notes": "Existing module enhanced with SDK patterns"
+        },
+        {
+            "upstream": "examples/02_golf_coach_example/",
+            "local": "backend/pose_engine.py",
+            "status": "adapted",
+            "notes": "Existing module enhanced with SDK patterns"
+        },
+        {
+            "upstream": "plugins/gemini/",
+            "local": "backend/llm_provider.py",
+            "status": "adapted",
+            "notes": "Gemini+fallback cascade, conditional via env flag"
+        },
+        {
+            "upstream": "plugins/openai/",
+            "local": "backend/llm_provider.py",
+            "status": "conditional",
+            "notes": "Enabled via ENABLE_OPENAI env flag"
+        },
+        {
+            "upstream": "plugins/ultralytics/",
+            "local": "backend/detect.py + pose_engine.py",
+            "status": "adapted",
+            "notes": "YOLO detection integrated"
+        },
+        {
+            "upstream": "docs/ai/instructions/",
+            "local": "backend/instructions.py",
+            "status": "adapted",
+            "notes": "InstructionPresets class"
+        },
+        {
+            "upstream": "tests/",
+            "local": "backend/test_full_sdk.py + test_deep_sdk.py",
+            "status": "adapted",
+            "notes": "50-point verification suite"
+        }
+    ],
+    "skipped": [
+        {
+            "path": "plugins/deepgram/",
+            "reason": "Requires API key; conditional flag added (ENABLE_DEEPGRAM)"
+        },
+        {
+            "path": "plugins/elevenlabs/",
+            "reason": "Requires API key; conditional flag added (ENABLE_ELEVENLABS)"
+        },
+        {
+            "path": "plugins/cartesia/",
+            "reason": "Requires API key; conditional flag added (ENABLE_CARTESIA)"
+        },
+        {
+            "path": "plugins/anthropic/",
+            "reason": "Requires API key; conditional flag added (ENABLE_ANTHROPIC)"
+        },
+        {
+            "path": "plugins/aws/",
+            "reason": "Requires API key; conditional flag added (ENABLE_AWS)"
+        },
+        {
+            "path": "assets/",
+            "reason": "UI/static assets not applicable to backend extraction"
+        },
+        {
+            "path": ".github/",
+            "reason": "CI config specific to upstream repo"
+        },
+        {
+            "path": ".claude/",
+            "reason": "IDE-specific config"
+        }
+    ],
+    "verification": {
+        "test_file": "test_deep_sdk.py",
+        "total_tests": 50,
+        "passed": 50,
+        "failed": 0,
+        "result": "ALL PASSED"
+    }
+}

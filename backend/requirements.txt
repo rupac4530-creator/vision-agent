@@ -1,11 +1,13 @@
 fastapi
 uvicorn[standard]
 python-multipart
+python-dotenv
 opencv-python
 pillow
 numpy
 tqdm
-ffmpeg-python
 ultralytics
 openai>=1.0.0
 requests
+yt-dlp
+google-generativeai>=0.8.0

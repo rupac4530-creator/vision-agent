@@ -1,178 +1,346 @@
-# Vision Agent 🎬🧠
+<p align="center">
+  <img src="https://img.shields.io/badge/🏆_WeMakeDevs-Vision_Possible-blueviolet?style=for-the-badge" alt="Vision Possible"/>
+  <img src="https://img.shields.io/badge/Stream-Vision_Agents-00C853?style=for-the-badge&logo=data:image/svg+xml;base64," alt="Stream"/>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"/>
+  <img src="https://img.shields.io/github/stars/rupac4530-creator/vision-agent?style=for-the-badge&color=gold" alt="Stars"/>
+</p>
 
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg)
+<h1 align="center">🤖 Vision Agent — Multi-Modal AI Platform</h1>
 
-**Real-time multimodal AI video agent** that watches, listens, and understands video — built for the [WeMakeDevs Vision Possible Hackathon](https://wemakedevs.org).
+<p align="center">
+  <strong>Production-grade AI platform with 17 real-time vision & audio features, 22 SDK modules, 7-tier LLM cascade, and 37+ API endpoints.</strong>
+</p>
 
-> Upload or stream video → Extract frames + Transcribe audio + Detect objects → Generate AI-powered study notes, formulas, and viva questions — all in real-time.
+<p align="center">
+  Built for <a href="https://github.com/GetStream/Vision-Agents"><strong>Vision Possible Hackathon</strong></a> by <a href="https://www.wemakedevs.org/">WeMakeDevs</a> × <a href="https://getstream.io/">Stream</a>
+</p>
+
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-features--17-ai-tabs">Features</a> •
+  <a href="#-architecture">Architecture</a> •
+  <a href="#-sdk-modules">SDK Modules</a> •
+  <a href="#-api-reference">API</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
 
 ---
 
-## ✨ Features
+## 👤 About the Creator
 
-| Feature | Detail |
+| | Details |
 |---|---|
-| 📤 **Video Upload** | Drag-and-drop, supports MP4/MOV/WebM |
-| 🖼️ **Frame Extraction** | 1 fps sampling via OpenCV |
-| 🎙️ **Audio Transcription** | OpenAI Whisper API (cloud) |
-| 🔍 **Object Detection** | YOLOv8 per-frame labels with confidence |
-| 🧠 **AI Notes** | LLM-generated summary, concepts, formulas, viva questions |
-| 💬 **Ask a Question** | Contextual QA chat over notes + transcript |
-| 🧪 **Quiz Generator** | MCQs + short-answer questions with auto-scoring |
-| 📐 **LaTeX Formulas** | MathJax-rendered formulas extracted from lectures |
-| 📡 **Live Streaming** | Webcam streaming in 2s chunks with real-time agent responses |
-| 🖼️ **Timeline Thumbnails** | Clickable frame timeline for video navigation |
-| ⌨️ **Keyboard Shortcuts** | Space play/pause, arrow keys ±5s |
-| ⚡ **LLM Caching** | In-memory cache for fast repeated queries |
+| **Name** | Bedanta Chatterjee |
+| **GitHub** | [@rupac4530-creator](https://github.com/rupac4530-creator) |
+| **LinkedIn** | [Bedanta Chatterjee](https://www.linkedin.com/in/bedanta-chatterjee-6286ba236) |
+| **Country** | 🇮🇳 India |
+| **Hackathon** | [Vision Possible](https://github.com/GetStream/Vision-Agents) by WeMakeDevs × Stream |
+
+---
+
+## 🚀 Quick Start
+
+### Option A: Local (Python)
+
+```bash
+# Clone the repo
+git clone https://github.com/rupac4530-creator/vision-agent.git
+cd vision-agent/backend
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate   # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys (only GEMINI_API_KEY is required)
+
+# Download YOLO models (auto-downloads on first run)
+# Or manually: pip install ultralytics && yolo export model=yolov8n.pt
+
+# Start the server
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# → Open http://localhost:8000
+```
+
+### Option B: Docker Compose
+
+```bash
+cd vision-agent
+docker compose up --build -d
+# → Open http://localhost:8000
+```
+
+---
+
+## ✨ Features — 17 AI Tabs
+
+| # | Tab | What It Does |
+|---|-----|-------------|
+| 1 | 🎬 **Upload & Analyze** | Video upload → frame extraction → YOLO object detection |
+| 2 | 📝 **AI Notes** | LLM-powered study notes from video content |
+| 3 | 💬 **Ask Anything** | Contextual Q&A over your video analysis |
+| 4 | 🌐 **URL Ingest** | YouTube/web article → auto-analysis pipeline |
+| 5 | 📡 **Live Stream** | Real-time streaming + AI overlay |
+| 6 | 🤖 **Agent Chat** | Streaming LLM chat with vision context |
+| 7 | 🧪 **Quiz** | Auto-generated MCQ quizzes from content |
+| 8 | 🏋️ **Pose Coach** | Real-time YOLO pose estimation + rep counter |
+| 9 | 🛡️ **Security Cam** | Object detection + threat alerts + wanted poster |
+| 10 | 🧙 **Characters** | 6 AI personas (Shakespeare, Einstein, etc.) |
+| 11 | 👥 **Crowd Monitor** | Crowd density + safety score + heatmap |
+| 12 | 🎮 **Gaming AI** | Game screenshot → strategic advice |
+| 13 | 📊 **Dashboard** | Real-time metrics + LLM cascade status |
+| 14 | 🌿 **EcoWatch** | Forest/wildlife surveillance — fire & poaching detection |
+| 15 | 🚗 **BlindSpot** | Dashcam AI — pedestrian/cyclist/hazard alerts |
+| 16 | 📋 **Meeting AI** | Live transcription + action items + LLM summary |
+| 17 | ♿ **Accessibility** | Scene descriptions + text reading + navigation + TTS |
+
+---
+
+## 🧠 LLM Cascade (7 Tiers)
+
+The system automatically falls through providers for maximum reliability:
+
+```
+Tier 0  ──  GLM-5:cloud via Z.ai Ollama (local priority)
+Tier 1  ──  Google Gemini 2.0 Flash (fastest free tier)  ← recommended
+Tier 2  ──  GitHub Models (GPT-4o-mini)
+Tier 3  ──  GitHub Models (DeepSeek-R1)
+Tier 4  ──  OpenAI GPT-4o-mini
+Tier 5  ──  Cloudflare Workers AI
+Tier 6  ──  Groq (llama-3.3-70b-versatile)
+Tier 7  ──  Auto-Summary (offline fallback)
+```
+
+---
+
+## 🔌 SDK Modules (22 Extracted)
+
+Full integration of the [GetStream/Vision-Agents](https://github.com/GetStream/Vision-Agents) SDK:
+
+| Phase | Module | Description |
+|-------|--------|-------------|
+| 1-3 | `function_registry` | LLM tool registration with JSON schema generation |
+| 1-3 | `event_bus` | SSE-enabled async event system |
+| 1-3 | `observability` | Prometheus-compatible metrics + collectors |
+| 1-3 | `video_processor` | Abstract processor pipeline for video frames |
+| 1-3 | `conversation` | Multi-turn conversation memory |
+| 4 | `llm_types` | SDK type system (ContentPart, ToolSchema, NormalizedResponse) |
+| 4 | `agent_core` | Agent orchestration with tool-calling loop |
+| 4 | `rag_engine` | TF-IDF RAG with document chunking |
+| 4 | `instructions` | Markdown instruction loader with @-mention includes |
+| 4 | `warmup_cache` | Model pre-loading with lazy deduplication |
+| 4 | `mcp_tools` | MCP external tool server integration |
+| 4 | `profiling` | Timing decorators with p50/p95/p99 histograms |
+| 4 | `turn_detection` | Silence-based turn detection for voice |
+| 4 | `transcript_buffer` | STT transcript accumulator with speaker tracking |
+| 5 | `llm_base` | Abstract LLM provider with tool-calling loop |
+| 5 | `stt_base` | Abstract STT with transcript events |
+| 5 | `tts_base` | Abstract TTS with streaming synthesis |
+| 5 | `vad` | Energy-based voice activity detection |
+| 5 | `edge_types` | Portable PcmData, VideoFrame, Participant types |
+| 5 | `http_transport` | WebRTC → HTTP adapter |
+| 5 | `config` | Feature flags for 12 providers + 6 features |
+| 5 | `event_manager` | Typed event dispatch with auto-discovery |
+
+---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐    ┌──────────────────────────────────────────────┐
-│  Browser UI  │───▶│              FastAPI Server                  │
-│              │    │                                              │
-│  Upload tab  │    │  /upload ──▶ frame_extractor.py              │
-│  Demo page   │    │  /analyze ──▶ ffmpeg audio ──▶ whisper       │
-│  Stream tab  │    │              ──▶ YOLOv8 detection            │
-│              │    │  /generate_notes ──▶ OpenAI LLM              │
-│  QA Chat     │    │  /ask ──▶ contextual QA (cached)             │
-│  Quiz Modal  │    │  /generate_quiz ──▶ MCQ + short answer       │
-│              │    │  /stream_chunk ──▶ instant per-chunk agent    │
-│              │    │  /stream_finalize ──▶ stitch + full analyze   │
-└─────────────┘    └──────────────────────────────────────────────┘
-```
-
-## 🚀 Quick Start
-
-### Option A: Docker (recommended — no ffmpeg install needed)
-
-```bash
-# Set your API key and run
-OPENAI_API_KEY="sk-..." docker compose up --build
-# Open http://localhost:8000
-```
-
-### Option B: Local Setup
-
-#### Prerequisites
-
-- **Python 3.10+**
-- **ffmpeg** installed and on PATH ([download](https://ffmpeg.org/download.html))
-- **OpenAI API key** (for transcription, notes, QA, and quiz)
-
-#### Windows PowerShell
-
-```powershell
-cd vision-agent\backend
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-$env:OPENAI_API_KEY = "sk-..."
-uvicorn main:app --reload --port 8000
-```
-
-#### Linux / macOS
-
-```bash
-cd vision-agent/backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-export OPENAI_API_KEY="sk-..."
-uvicorn main:app --reload --port 8000
-```
-
-Open **http://localhost:8000** — Upload & Analyze UI
-Open **http://localhost:8000/demo** — Interactive Demo (QA, Quiz, Timeline)
-
-> **💡 No API key?** The server runs without `OPENAI_API_KEY` — transcription returns a placeholder and notes serve pre-generated samples from `analysis/sample/`. Judges can browse the demo UI and sample outputs immediately.
-
-## 📡 API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/` | Upload & stream UI |
-| GET | `/demo` | Interactive demo (QA, quiz, timeline) |
-| POST | `/upload` | Upload video → extract frames |
-| POST | `/analyze` | Full pipeline: frames + transcript + detection |
-| POST | `/generate_notes?video_stem=video` | LLM notes from analysis |
-| POST | `/ask` | Contextual QA over notes + transcript |
-| POST | `/generate_quiz` | MCQ + short-answer quiz from notes |
-| POST | `/stream_chunk` | Stream a 2-5s chunk for instant processing |
-| POST | `/stream_finalize` | Stitch chunks + run full analysis |
-
-## ⚙️ Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | — | **Required** for transcription, notes, QA, quiz |
-| `WHISPER_MODEL` | `tiny` | Whisper model size |
-| `YOLO_MODEL` | `yolov8n.pt` | YOLO model file |
-| `LLM_MODEL` | `gpt-4o-mini` | OpenAI chat model |
-
-## 🛠️ Tech Stack
-
-- **Backend**: Python 3.11, FastAPI, Uvicorn
-- **Vision**: OpenCV, YOLOv8 (ultralytics)
-- **Audio**: OpenAI Whisper API
-- **LLM**: OpenAI GPT-4o-mini
-- **Math**: MathJax 3 (LaTeX rendering)
-- **Streaming**: ffmpeg, MediaRecorder API
-- **Frontend**: Vanilla HTML/CSS/JS — dark glassmorphism
-- **Deploy**: Docker, GitHub Actions CI
-
-## 📁 Project Structure
-
-```
 vision-agent/
 ├── backend/
-│   ├── main.py              # FastAPI app (all routes)
-│   ├── frame_extractor.py   # OpenCV frame extraction
-│   ├── transcribe.py        # OpenAI Whisper API transcription
-│   ├── detect.py            # YOLOv8 detection
-│   ├── llm_helpers.py       # LLM call wrapper with retry
-│   ├── generate_notes.py    # Notes generator (with fallback)
-│   ├── streaming.py         # Real-time chunk streaming
-│   ├── requirements.txt     # Python dependencies
-│   ├── final_test_report.txt
-│   ├── .gitignore
-│   ├── analysis/sample/     # Pre-generated sample outputs
-│   │   ├── analysis.json
-│   │   ├── notes.json
-│   │   └── quiz.json
-│   └── static/
-│       ├── index.html       # Upload & live-stream UI
-│       └── demo.html        # Interactive demo (QA, quiz, timeline)
-├── .github/workflows/ci.yml # GitHub Actions CI
-├── Dockerfile               # Docker build
-├── docker-compose.yml       # One-command start
-├── README.md
-├── LICENSE                  # MIT
-├── PRIVACY.md               # Data handling note
-├── BLOG_POST.md             # Blog draft
-├── SUBMISSION_NOTES.md      # Metrics & pitch
-├── SUBMISSION_READY.txt     # Hackathon form fields
-└── RELEASE_NOTES.md         # GitHub Release notes
+│   ├── main.py                # FastAPI — 37+ endpoints
+│   ├── llm_provider.py        # 7-tier LLM cascade with health tracking
+│   ├── agent_core.py          # SDK agent orchestration
+│   ├── function_registry.py   # LLM tool registration + MCP
+│   ├── rag_engine.py          # TF-IDF RAG system
+│   ├── config.py              # Feature flags + env management
+│   ├── event_bus.py           # SSE event system
+│   ├── observability.py       # Metrics collectors
+│   ├── pose_engine.py         # YOLO pose + rep counting
+│   ├── security_cam.py        # Security camera AI
+│   ├── video_processor.py     # Frame processing pipeline
+│   ├── llm_base.py            # Abstract LLM provider
+│   ├── stt_base.py            # Abstract STT provider
+│   ├── tts_base.py            # Abstract TTS provider
+│   ├── vad.py                 # Voice activity detection
+│   ├── http_transport.py      # WebRTC→HTTP adapter
+│   ├── static/
+│   │   └── index.html         # SPA with 17 AI tabs
+│   ├── test_deep_sdk.py       # 50-point verification suite
+│   └── requirements.txt
+├── .github/
+│   └── workflows/ci.yml       # Lint + test CI
+├── docker-compose.yml
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── LICENSE
+└── README.md
 ```
-
-## 📊 Performance Metrics
-
-| Step | Time |
-|---|---|
-| Frame extraction (30s video) | ~1-2s |
-| Whisper transcription (cloud) | ~2-5s |
-| YOLOv8 detection (30 frames) | ~3-6s |
-| LLM notes generation | ~3-8s |
-| **Total pipeline** | **~10-20s** |
-
-## License
-
-MIT — see [LICENSE](LICENSE)
 
 ---
 
-Built with ❤️ for the **WeMakeDevs Vision Possible Hackathon** — powered by [Vision Agents by Stream](https://getstream.io/video/vision-agents/) & [OpenAI](https://openai.com)
+## ⚙️ Environment Variables
 
+Only `GEMINI_API_KEY` is required. All others are optional and enable additional tiers:
+
+```env
+# Required (Tier 1)
+GEMINI_API_KEY=your_gemini_key
+
+# Optional providers
+GITHUB_TOKEN=               # Tier 2-3: GitHub Models
+OPENAI_API_KEY=              # Tier 4: OpenAI
+CLOUDFLARE_ACCOUNT_ID=       # Tier 5: Cloudflare
+CLOUDFLARE_AUTH_TOKEN=
+GROQ_API_KEY=                # Tier 6: Groq
+OLLAMA_URL=                  # Tier 0: Z.ai Ollama
+OLLAMA_TOKEN=
+OLLAMA_MODEL=glm-5:cloud
+
+# Feature flags (SDK modules)
+ENABLE_RAG=true
+ENABLE_MCP=false
+ENABLE_PROFILING=true
+ENABLE_STT=false
+ENABLE_TTS=false
+```
+
+---
+
+## 📡 API Reference
+
+<details>
+<summary><strong>Click to expand — 37+ endpoints</strong></summary>
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | System health + LLM provider info |
+| `GET` | `/metrics` | Real-time performance metrics |
+| `GET` | `/modules` | All 22 loaded SDK modules |
+| `GET` | `/config` | Platform configuration (safe, no secrets) |
+| `POST` | `/upload` | Video upload + frame extraction |
+| `POST` | `/analyze` | Full video analysis pipeline |
+| `POST` | `/generate_notes` | Async LLM notes generation |
+| `POST` | `/ask` | Q&A over video analysis |
+| `POST` | `/generate_quiz` | MCQ + short-answer quiz |
+| `POST` | `/pose_analyze` | YOLO pose + rep counting |
+| `POST` | `/stt` | Speech-to-text |
+| `POST` | `/character_chat` | Persona AI chat |
+| `GET` | `/personas` | List available personas |
+| `POST` | `/security_analyze` | Security threat detection |
+| `POST` | `/wanted_poster` | Gemini Vision wanted poster |
+| `POST` | `/crowd_analyze` | Crowd density + safety |
+| `POST` | `/gaming_analyze` | Game screenshot analysis |
+| `POST` | `/eco_analyze` | Forest/wildlife detection |
+| `POST` | `/blindspot_analyze` | Dashcam hazard detection |
+| `POST` | `/meeting_frame` | Video frame participant count |
+| `POST` | `/meeting_transcript_add` | Add transcript + extract actions |
+| `POST` | `/meeting_summarize` | LLM meeting summary |
+| `POST` | `/accessibility_describe` | Scene description (5 modes) |
+| `POST` | `/agent/run` | Run agent with tools |
+| `POST` | `/rag/add` | Add documents to RAG |
+| `POST` | `/rag/search` | Semantic search |
+| `POST` | `/turn/audio_level` | Voice turn detection |
+| `POST` | `/vad/process` | Voice activity detection |
+| `GET` | `/rag/stats` | RAG engine stats |
+| `GET` | `/profiling/stats` | Performance profiling |
+| `GET` | `/warmup/stats` | Model warmup cache |
+| `GET` | `/agent/stats` | Agent orchestration stats |
+| `GET` | `/mcp/stats` | MCP tool server stats |
+| `GET` | `/transport/stats` | HTTP transport stats |
+| `GET` | `/turn/stats` | Turn detection stats |
+| `GET` | `/vad/stats` | VAD stats |
+| `GET` | `/transcript/stats` | Transcript buffer stats |
+
+</details>
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | FastAPI + Uvicorn |
+| **Vision** | YOLOv8 (Ultralytics) — object detection + pose estimation |
+| **LLM** | Gemini 2.0 Flash, GPT-4o-mini, DeepSeek-R1, Groq, GLM-5 |
+| **STT** | OpenAI Whisper |
+| **SDK** | [GetStream/Vision-Agents](https://github.com/GetStream/Vision-Agents) — 22 extracted modules |
+| **Frontend** | Vanilla HTML/CSS/JS SPA (17 tabs, zero framework) |
+| **Container** | Docker + Docker Compose |
+| **CI** | GitHub Actions (lint + test) |
+
+---
+
+## 🧪 Testing
+
+```bash
+cd backend
+
+# Run 50-point SDK verification (all modules)
+python test_deep_sdk.py
+
+# Run full SDK test suite
+python test_full_sdk.py
+
+# Run phase-specific tests
+python test_phase1.py
+python test_phase2.py
+python test_phase3.py
+```
+
+**Latest results**: ✅ 50/50 tests passed across all 22 SDK modules.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 🏆 Hackathon
+
+| | |
+|---|---|
+| **Event** | [Vision Possible](https://github.com/GetStream/Vision-Agents) by [WeMakeDevs](https://www.wemakedevs.org/) × [Stream](https://getstream.io/) |
+| **Track** | Multi-Modal AI Agent |
+| **Participant** | [Bedanta Chatterjee](https://github.com/rupac4530-creator) |
+| **Upstream SDK** | [GetStream/Vision-Agents](https://github.com/GetStream/Vision-Agents) |
+| **Tags** | `#VisionPossible` · `@WeMakeDevs` · `@visionagents_ai` |
+
+---
+
+## 🙏 Acknowledgements
+
+- **[GetStream/Vision-Agents](https://github.com/GetStream/Vision-Agents)** — Open Vision Agents SDK (Apache-2.0). 22 modules extracted and adapted.
+- **[WeMakeDevs](https://www.wemakedevs.org/)** — Hackathon organizer (founded by [Kunal Kushwaha](https://github.com/kunal-kushwaha))
+- **[Stream](https://getstream.io/)** — Real-time video infrastructure sponsor
+- **[Ultralytics](https://github.com/ultralytics/ultralytics)** — YOLOv8 object detection & pose estimation
+- **[Google](https://ai.google.dev/)** — Gemini 2.0 Flash LLM
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
+
+Third-party components are attributed in [THIRD_PARTY_LICENSES.md](backend/THIRD_PARTY_LICENSES.md).
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/rupac4530-creator">Bedanta Chatterjee</a> for the <a href="https://github.com/GetStream/Vision-Agents">Vision Possible</a> hackathon
+</p>

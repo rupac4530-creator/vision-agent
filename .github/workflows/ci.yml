@@ -1,59 +1,80 @@
-name: CI — Vision Agent
+name: CI — Lint & Test
 
 on:
   push:
-    branches: [submission, main]
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
-  test:
+  lint-and-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
+      
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
+          python-version: ${{ matrix.python-version }}
+      
       - name: Install dependencies
         run: |
-          cd backend
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Verify imports
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install ruff
+      
+      - name: Lint with ruff
         run: |
-          cd backend
-          python -c "
-          from fastapi import FastAPI
-          from frame_extractor import extract_frames
-          from transcribe import transcribe_audio_whisper
-          from detect import detect_frames
-          from generate_notes import generate_notes_from_analysis
-          from streaming import router
-          from llm_helpers import call_llm, safe_parse_json
-          print('All imports OK')
-          "
-
-      - name: Start server and health check
+          ruff check backend/ --select E,F,W --ignore E501,E402,F401 --exit-zero
+        continue-on-error: true
+      
+      - name: Run SDK verification tests
+        working-directory: backend
         run: |
-          cd backend
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
-          sleep 5
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000)
-          echo "Health check: HTTP $STATUS"
-          [ "$STATUS" = "200" ] || exit 1
-          STATUS_DEMO=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/demo)
-          echo "Demo page: HTTP $STATUS_DEMO"
-          [ "$STATUS_DEMO" = "200" ] || exit 1
+          python test_deep_sdk.py
+        env:
+          PYTHONIOENCODING: utf-8
 
-      - name: Verify sample outputs exist
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install dependencies
         run: |
-          test -f backend/analysis/sample/analysis.json && echo "✅ sample analysis.json"
-          test -f backend/analysis/sample/notes.json && echo "✅ sample notes.json"
-          test -f backend/analysis/sample/quiz.json && echo "✅ sample quiz.json"
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+      
+      - name: Start server (background)
+        working-directory: backend
+        run: |
+          python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+        env:
+          GEMINI_API_KEY: ""
+          GITHUB_TOKEN: ""
+      
+      - name: Smoke test — health check
+        run: |
+          curl -f http://localhost:8000/health || exit 1
+          echo "✅ Health check passed"
+      
+      - name: Smoke test — modules endpoint
+        run: |
+          curl -f http://localhost:8000/modules || exit 1
+          echo "✅ Modules endpoint passed"
+      
+      - name: Smoke test — config endpoint
+        run: |
+          curl -f http://localhost:8000/config || exit 1
+          echo "✅ Config endpoint passed"

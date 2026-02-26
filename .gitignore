@@ -13,19 +13,23 @@ venv/
 backend/venv/
 backend/.venv/
 
-# Environment
+# Environment (secrets)
 .env
+backend/.env
 
-# Uploaded / generated data (keep samples)
+# Uploaded / generated data
 backend/uploads/
 backend/frames/
 backend/stream_uploads/
 backend/analysis/*
 !backend/analysis/sample/
+backend/logs/
+backend/conversations/
 
-# Models
+# Model weights (download on first run)
 *.pt
 *.pth
+*.onnx
 
 # IDE
 .vscode/
@@ -36,7 +40,20 @@ backend/analysis/*
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
 backend/server.pid
+
+# Build
+*.zip
+node_modules/
+
+# Upstream SDK (cloned for reference — too large for repo)
+_upstream_sdk/
+_upstream_sdk.zip
+
+# Temporary test/report files
+backend/*_report.txt
+backend/chunk_fix_report.txt

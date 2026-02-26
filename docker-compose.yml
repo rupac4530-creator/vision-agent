@@ -1,13 +1,50 @@
-version: '3.8'
+version: "3.9"
+
 services:
-  app:
+  # ── Vision Agent Backend ─────────────────────────────────────────────
+  vision-agent:
     build: .
+    container_name: vision-agent-backend
     ports:
       - "8000:8000"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    env_file:
+      - .env
     volumes:
-      - ./backend/analysis:/app/backend/analysis
-      - ./backend/frames:/app/backend/frames
-      - ./backend/uploads:/app/backend/uploads
+      - ./uploads:/app/uploads
+      - ./frames:/app/frames
+      - ./analysis:/app/analysis
+      - yolo-models:/root/.cache # YOLO model cache
     restart: unless-stopped
+    depends_on:
+      - ollama
+    networks:
+      - vision-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Ollama (local LLM — Tier 0) ──────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vision-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - vision-net
+    # Pull a lightweight model on startup (optional)
+    # command: >
+    #   sh -c "ollama serve & sleep 5 && ollama pull llama3.2:1b && wait"
+
+volumes:
+  ollama-data:
+  yolo-models:
+
+
+networks:
+  vision-net:
+    driver: bridge
