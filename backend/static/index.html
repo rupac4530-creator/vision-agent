@@ -1,0 +1,3889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vision Agent — Real-Time Multimodal AI</title>
+    <meta name="description"
+        content="Real-time multimodal AI video agent that watches, listens, and understands video. Powered by Vision Agents SDK." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ── CSS Reset & Variables ──────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(99, 102, 241, 0.5);
+            --text-primary: #f0f0f5;
+            --text-secondary: #9ca3b0;
+            --text-muted: #5a5f6e;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #a855f7;
+            --gradient-main: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --gradient-subtle: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Cosmic Starfield Background ──────────────────────────────── */
+        #cosmicCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ── Page entrance ──────────────────────────────────────────────── */
+        .app {
+            animation: appEntrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes appEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── Logo eye-blink animation ───────────────────────────────────── */
+        .logo-eye {
+            transform-origin: center;
+            transition: transform 0.15s ease;
+        }
+
+        .logo.blink .logo-eye {
+            transform: scaleY(0.05);
+        }
+
+        .logo svg {
+            animation: logoEntrance 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes logoEntrance {
+            from {
+                transform: scale(0.6) rotate(-10deg);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .logo:hover svg {
+            animation: logoPulse 0.5s ease;
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15) rotate(5deg);
+            }
+        }
+
+        /* ── Layout ────────────────────────────────────────────────────── */
+        .app {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.7);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--gradient-subtle);
+            color: var(--accent-1);
+            border: 1px solid var(--border-active);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* ── Tab Navigation ────────────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-card-hover);
+            transform: translateY(-1px);
+        }
+
+        .tab:active {
+            transform: scale(0.97);
+        }
+
+        .tab.active {
+            color: #fff;
+            background: var(--gradient-main);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            transform: translateY(0);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: panelEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes panelEnter {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Cards ──────────────────────────────────────────────────────── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--border-active);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* ── Drop Zone ─────────────────────────────────────────────────── */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .dropzone:hover,
+        .dropzone.dragover {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.05);
+            border-image: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #6366f1) 1;
+            animation: dropzonePulse 2s ease-in-out infinite;
+        }
+        @keyframes dropzonePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+            50% { box-shadow: 0 0 20px 2px rgba(99, 102, 241, 0.15); }
+        }
+
+        .dropzone input {
+            display: none;
+        }
+
+        .dropzone-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-subtle);
+            border: 1px solid var(--border-active);
+        }
+
+        .dropzone-text {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .dropzone-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Buttons ────────────────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 28px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-active);
+        }
+
+        /* ── Progress ───────────────────────────────────────────────────── */
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-container.visible {
+            display: block;
+        }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 3px;
+            background: var(--gradient-main);
+            transition: width 0.5s ease;
+        }
+
+        .progress-status {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── Results ────────────────────────────────────────────────────── */
+        .results {
+            margin-top: 24px;
+        }
+
+        .result-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .result-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-section pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Concept Tags ──────────────────────────────────────────────── */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--gradient-subtle);
+            border: 1px solid var(--border-active);
+            color: var(--accent-1);
+        }
+
+        /* ── Question Cards ────────────────────────────────────────────── */
+        .question-group {
+            margin-bottom: 16px;
+        }
+
+        .question-group h4 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .question-item {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            border-left: 3px solid var(--accent-1);
+        }
+
+        .question-group.medium .question-item {
+            border-left-color: var(--warning);
+        }
+
+        .question-group.hard .question-item {
+            border-left-color: var(--error);
+        }
+
+        /* ── Live Stream ───────────────────────────────────────────────── */
+        .stream-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stream-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-preview {
+            width: 100%;
+            border-radius: var(--radius-sm);
+            background: #000;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        /* Video container glow when streaming */
+        .video-container-live {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.15), 0 0 60px rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .stream-log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .log-entry .time {
+            color: var(--accent-1);
+            margin-right: 8px;
+        }
+
+        .log-entry .label {
+            color: var(--success);
+        }
+
+        /* ── Formula block ─────────────────────────────────────────────── */
+        .formula-card {
+            padding: 14px 18px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .formula-latex {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Cambria Math', serif;
+            margin-bottom: 4px;
+        }
+
+        .formula-explain {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Highlight timeline ────────────────────────────────────────── */
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .highlight-time {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-1);
+            min-width: 50px;
+        }
+
+        .highlight-text {
+            font-size: 13px;
+        }
+
+        /* ── Buttons row ───────────────────────────────────────────────── */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Footer ────────────────────────────────────────────────────── */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        .footer a {
+            color: var(--accent-1);
+            text-decoration: none;
+        }
+
+        /* ── Spinner ────────────────────────────────────────────────────── */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Toast ──────────────────────────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(12px);
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--error);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px) scale(0.9);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateX(-6px) scale(1.02);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        /* ── Button Microinteractions ────────────────────────────────────── */
+        .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.2), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+        }
+
+        /* ── Card hover animations ──────────────────────────────────────── */
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
+        }
+
+        /* ── Progress bar shimmer ───────────────────────────────────────── */
+        .progress-bar {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            animation: shimmer 1.8s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        /* ── Stream chunk success/fail micro-animations ─────────────────── */
+        @keyframes chunkSuccess {
+            0% {
+                background: rgba(34, 197, 94, 0.15);
+            }
+
+            100% {
+                background: transparent;
+            }
+        }
+
+        @keyframes chunkFail {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-4px);
+            }
+
+            40% {
+                transform: translateX(4px);
+            }
+
+            60% {
+                transform: translateX(-3px);
+            }
+
+            80% {
+                transform: translateX(2px);
+            }
+        }
+
+        /* ── Badge pulse ────────────────────────────────────────────────── */
+        .badge {
+            animation: badgePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes badgePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+            }
+        }
+
+        /* ── Sparkle effect for completed actions ───────────────────────── */
+        .sparkle-container {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-2);
+            animation: sparkleAnim 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% {
+                transform: scale(0) translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) translate(var(--tx), var(--ty));
+                opacity: 0;
+            }
+        }
+
+        /* ── 3D Card Tilt ───────────────────────────────────────────────── */
+        .card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .card.tilt-active {
+            transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg));
+            transition: transform 0.1s ease-out, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* ── Glow border on active elements ────────────────────────────── */
+        .card:focus-within {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15), 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        /* ── Animated gradient text for hero elements ──────────────────── */
+        .gradient-text-animated {
+            background: linear-gradient(270deg, #6366f1, #a855f7, #ec4899, #6366f1);
+            background-size: 600% 600%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ── Skeleton loading ──────────────────────────────────────────── */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 400% 100%;
+            animation: skeletonPulse 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+        @keyframes skeletonPulse {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+
+        /* ── Confetti canvas ───────────────────────────────────────────── */
+        #confettiCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        /* ── Audio visualizer ──────────────────────────────────────────── */
+        .audio-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 24px;
+        }
+        .audio-bar {
+            width: 3px;
+            background: var(--gradient-main);
+            border-radius: 2px;
+            transition: height 0.08s ease;
+            min-height: 2px;
+        }
+
+        /* ── Pulse ring for live indicators ─────────────────────────────── */
+        .pulse-ring {
+            position: relative;
+        }
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid var(--success);
+            animation: pulseRing 2s ease-out infinite;
+        }
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        /* ── Keyboard shortcut hints ───────────────────────────────────── */
+        .kbd {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── Session timer ─────────────────────────────────────────────── */
+        .session-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-1);
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 6px;
+        }
+
+        /* ── Score ring (for coach) ────────────────────────────────────── */
+        .score-ring {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-ring svg { transform: rotate(-90deg); }
+        .score-ring .score-value {
+            position: absolute;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* ── Notification dot ──────────────────────────────────────────── */
+        .tab .notif-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            display: none;
+        }
+        .tab .notif-dot.active { display: block; }
+
+        /* ── Smooth scrollbar ──────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── Reduced motion ─────────────────────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            #cosmicCanvas,
+            #confettiCanvas {
+                display: none;
+            }
+
+            .card.tilt-active {
+                transform: none !important;
+            }
+        }
+
+        /* ── Demo link in header ────────────────────────────────── */
+        .demo-link {
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--accent-1);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .demo-link:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ── Chat panel ────────────────────────────────────────── */
+        .chat-messages {
+            min-height: 320px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .chat-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+            text-align: center;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            animation: chatFadeIn 0.3s ease;
+        }
+
+        @keyframes chatFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-msg.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-msg.user .chat-avatar {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .chat-msg.bot .chat-avatar {
+            background: linear-gradient(135deg, #22c55e, #10b981);
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .chat-msg.user .chat-bubble {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--text-primary);
+            border-top-right-radius: 4px;
+        }
+
+        .chat-msg.bot .chat-bubble {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-top-left-radius: 4px;
+        }
+
+        .chat-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .chat-badge.fast {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .chat-badge.polish {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .chat-provenance {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .chat-provenance-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .chat-send-btn {
+            flex-shrink: 0;
+        }
+
+        .chat-typing {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .chat-typing span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            animation: typingDot 1.2s ease-in-out infinite;
+        }
+
+        .chat-typing span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .chat-typing span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes typingDot {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+
+            30% {
+                opacity: 1;
+                transform: translateY(-4px);
+            }
+        }
+
+        /* ── Quiz panel ────────────────────────────────────────── */
+        .quiz-score-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+
+        .quiz-provider-badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .quiz-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 14px;
+            transition: var(--transition);
+            animation: chatFadeIn 0.4s ease;
+        }
+
+        .quiz-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .quiz-q-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-q-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .quiz-option:hover:not(.chosen) {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: var(--text-primary);
+        }
+
+        .quiz-option.correct {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #22c55e;
+        }
+
+        .quiz-option.wrong {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+
+        .quiz-option.chosen {
+            cursor: default;
+        }
+
+        .quiz-explanation {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .quiz-explanation.shown {
+            display: block;
+        }
+
+        .quiz-sa-answer {
+            margin-top: 10px;
+        }
+
+        .quiz-sa-reveal {
+            padding: 6px 14px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: #8b5cf6;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .quiz-sa-reveal:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .quiz-sa-text {
+            display: none;
+            margin-top: 8px;
+            padding: 10px 14px;
+            background: rgba(34, 197, 94, 0.06);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        /* ── Export buttons ─────────────────────────────────────── */
+        .export-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-export {
+            padding: 6px 14px;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: var(--accent-1);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-export:hover {
+            background: rgba(99, 102, 241, 0.18);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ── Tab bar scroll (mobile) ───────────────────────────── */
+        @media (max-width: 768px) {
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                flex-wrap: nowrap;
+            }
+
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .tab {
+                white-space: nowrap;
+                flex-shrink: 0;
+                font-size: 12px;
+                padding: 10px 14px;
+            }
+
+            .chat-bubble {
+                max-width: 90%;
+            }
+
+            .chat-input-row {
+                flex-direction: column;
+            }
+
+            .chat-input {
+                width: 100%;
+            }
+
+            .chat-send-btn {
+                width: 100%;
+            }
+
+            .quiz-card {
+                padding: 14px;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            .export-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cosmic Starfield Background -->
+    <canvas id="cosmicCanvas"></canvas>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo" id="logoEl">
+                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Outer ring -->
+                    <circle cx="18" cy="18" r="16" stroke="url(#lg)" stroke-width="2" opacity="0.4" />
+                    <circle cx="18" cy="18" r="16" stroke="url(#lg)" stroke-width="2" stroke-dasharray="100.5"
+                        stroke-dashoffset="100.5"
+                        style="animation: drawCircle 1.2s cubic-bezier(0.4,0,0.2,1) 0.5s forwards" />
+                    <!-- Eye shape -->
+                    <ellipse cx="18" cy="18" rx="10" ry="7" stroke="url(#lg)" stroke-width="1.8" fill="none" />
+                    <!-- Iris -->
+                    <circle cx="18" cy="18" r="4.5" fill="url(#lg)" opacity="0.9" />
+                    <!-- Pupil -->
+                    <circle cx="18" cy="18" r="2" fill="#0a0a0f" />
+                    <!-- Eyelid (for blink) -->
+                    <ellipse class="logo-eye" cx="18" cy="18" rx="10" ry="7" fill="#0a0a0f" opacity="0" />
+                    <!-- Shine -->
+                    <circle cx="20" cy="16" r="1.2" fill="white" opacity="0.7" />
+                    <defs>
+                        <linearGradient id="lg" x1="0" y1="0" x2="36" y2="36">
+                            <stop stop-color="#6366f1" />
+                            <stop offset="0.5" stop-color="#8b5cf6" />
+                            <stop offset="1" stop-color="#a855f7" />
+                        </linearGradient>
+                    </defs>
+                    <style>
+                        @keyframes drawCircle {
+                            to {
+                                stroke-dashoffset: 0;
+                            }
+                        }
+                    </style>
+                </svg>
+                <span class="gradient-text-animated">Vision Agent</span>
+            </div>
+            <span class="badge">WeMakeDevs Hackathon 2026</span>
+            <a href="/demo" class="demo-link" title="Open Demo Page">🎮 Demo</a>
+            <div id="healthDot" title="Server status"
+                style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#5a5f6e;cursor:default;padding:5px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);transition:all 0.3s">
+                <span id="healthDotCircle"
+                    style="width:8px;height:8px;border-radius:50%;background:#5a5f6e;transition:background 0.5s"></span>
+                <span id="healthDotLabel">Connecting…</span>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Tabs -->
+            <div class="tabs" id="tabNav">
+                <button class="tab active" data-tab="upload" id="tabUpload">
+                    <span>📤</span> Upload &amp; Analyze
+                </button>
+                <button class="tab" data-tab="notes" id="tabNotes">
+                    <span>📝</span> AI Notes
+                </button>
+                <button class="tab" data-tab="stream" id="tabStream">
+                    <span>📡</span> Live Stream
+                </button>
+                <button class="tab" data-tab="url" id="tabUrl">
+                    <span>🌐</span> Ingest URL
+                </button>
+                <button class="tab" data-tab="chat" id="tabChat">
+                    <span>🤖</span> Agent Chat
+                </button>
+                <button class="tab" data-tab="quiz" id="tabQuiz">
+                    <span>🧪</span> Quiz
+                </button>
+            </div>
+
+            <!-- ═══════════════ TAB 1: Upload & Analyze ═══════════════ -->
+            <div class="tab-panel active" id="panelUpload">
+                <div class="card">
+                    <div class="card-title">🎬 Upload Video</div>
+                    <div class="card-desc">Upload a short video (10–60 s recommended). The agent will extract frames,
+                        transcribe audio, and detect objects.</div>
+
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" accept="video/*" />
+                        <div class="dropzone-icon">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24" style="color:var(--accent-1)">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                        </div>
+                        <div class="dropzone-text">Drag & drop your video here</div>
+                        <div class="dropzone-sub">or click to browse — MP4, MOV, WebM supported</div>
+                    </div>
+
+                    <div class="progress-container" id="progressArea">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="progress-status">
+                            <span id="progressLabel">Uploading…</span>
+                            <span id="progressPct">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="btnUpload" disabled>
+                            <span>📤</span> Upload Only (Frames)
+                        </button>
+                        <button class="btn btn-primary" id="btnAnalyze" disabled>
+                            <span>🔬</span> Full Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="results" id="uploadResults" style="display:none">
+                    <div class="metric-grid" id="metricsGrid"></div>
+                    <div class="result-section" id="transcriptSection" style="display:none">
+                        <h3>🎙️ Transcript</h3>
+                        <pre id="transcriptText"></pre>
+                    </div>
+                    <div class="result-section" id="detectionsSection" style="display:none">
+                        <h3>🔍 Detections Summary</h3>
+                        <pre id="detectionsText"></pre>
+                    </div>
+                    <div class="result-section" id="rawJsonSection">
+                        <h3>📄 Raw JSON</h3>
+                        <pre id="rawJson"></pre>
+                        <div class="export-btn-row" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+                            <button class="btn btn-secondary" id="btnExportAnalysis"
+                                style="font-size:12px;padding:8px 14px">
+                                <span>📊</span> Export Analysis JSON
+                            </button>
+                            <button class="btn btn-secondary" id="btnExportTranscript"
+                                style="font-size:12px;padding:8px 14px">
+                                <span>🎙️</span> Export Transcript JSON
+                            </button>
+                            <button class="btn btn-secondary" id="btnExportDetections"
+                                style="font-size:12px;padding:8px 14px">
+                                <span>🔍</span> Export Detections JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ TAB 2: AI Notes ═══════════════════════ -->
+            <div class="tab-panel" id="panelNotes">
+                <div class="card">
+                    <div class="card-title">🧠 Generate AI Study Notes</div>
+                    <div class="card-desc">Uses an LLM (OpenAI) to turn transcript + detections into structured notes,
+                        formulas, and viva questions. Requires running Full Analysis first.</div>
+                    <div id="notesStemHint"
+                        style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;font-size:13px;color:#22c55e">
+                        ✅ Video stem auto-detected from your last analysis. Click "Generate Notes" to proceed.
+                    </div>
+                    <div id="notesNoAnalysis"
+                        style="margin-bottom:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:13px;color:#f59e0b">
+                        ⚠️ No analysis found yet. Go to "Upload & Analyze" tab and run Full Analysis first.
+                    </div>
+
+                    <div style="display:flex;gap:12px;align-items:center">
+                        <input type="text" id="noteStem" value="video" placeholder="video stem name"
+                            style="flex:1;padding:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:14px" />
+                        <button class="btn btn-primary" id="btnNotes">
+                            <span>✨</span> Generate Notes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results" id="notesResults" style="display:none">
+                    <!-- Summary -->
+                    <div class="result-section" id="notesSummarySection">
+                        <h3>📋 Summary</h3>
+                        <p id="notesSummary" style="font-size:14px;line-height:1.7;color:var(--text-secondary)"></p>
+                    </div>
+                    <!-- Key Concepts -->
+                    <div class="result-section" id="notesConceptsSection">
+                        <h3>💡 Key Concepts</h3>
+                        <div class="tag-list" id="notesConceptTags"></div>
+                    </div>
+                    <!-- Formulas -->
+                    <div class="result-section" id="notesFormulasSection">
+                        <h3>📐 Formulas</h3>
+                        <div id="notesFormulas"></div>
+                    </div>
+                    <!-- Viva Questions -->
+                    <div class="result-section" id="notesVivaSection">
+                        <h3>❓ Viva Questions</h3>
+                        <div id="notesViva"></div>
+                    </div>
+                    <!-- Highlights -->
+                    <div class="result-section" id="notesHighlightsSection">
+                        <h3>🎯 Highlights</h3>
+                        <div id="notesHighlights"></div>
+                    </div>
+                    <!-- Raw JSON -->
+                    <div class="result-section">
+                        <h3>📄 Raw Notes JSON</h3>
+                        <pre id="notesRawJson"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ TAB 3: Live Stream ════════════════════ -->
+            <div class="tab-panel" id="panelStream">
+                <div class="card">
+                    <div class="card-title">📡 Real-Time Vision Agent Stream</div>
+                    <div class="card-desc">Stream from your webcam or screen — each 2s chunk gets instant YOLO detection with
+                        bounding boxes, pose estimation, fitness coaching, transcription, and agent reasoning. Supports 7 exercises with rep counting, streak tracking, and voice feedback.</div>
+
+                    <div class="stream-layout" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                        <!-- Left: Video + Controls -->
+                        <div>
+                            <!-- Video container with canvas overlay for bboxes -->
+                            <div
+                                style="position:relative;border-radius:var(--radius-sm);overflow:hidden;background:#000;aspect-ratio:4/3">
+                                <video id="videoPreview" style="width:100%;height:100%;object-fit:cover;display:block"
+                                    autoplay playsinline muted></video>
+                                <canvas id="bboxCanvas"
+                                    style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+                                <!-- Latency overlay -->
+                                <div id="latencyOverlay"
+                                    style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);color:#10b981;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;display:none">
+                                    <span id="latencyMs">0</span>ms
+                                </div>
+                                <!-- Detection count badge -->
+                                <div id="detCountBadge"
+                                    style="position:absolute;top:8px;left:8px;background:rgba(99,102,241,0.85);color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;display:none">
+                                    🔍 <span id="detCountNum">0</span> objects
+                                </div>
+                            </div>
+
+                            <div class="btn-row" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                                <button class="btn btn-primary" id="btnStartStream">
+                                    <span>▶️</span> Start Stream
+                                </button>
+                                <button class="btn btn-secondary" id="btnStopStream" disabled>
+                                    <span>⏹️</span> Stop
+                                </button>
+                                <button class="btn btn-secondary" id="btnFinalize" disabled>
+                                    <span>🔗</span> Finalize
+                                </button>
+                                <button class="btn btn-secondary" id="btnToggleVoice"
+                                    style="font-size:12px" title="Toggle coach voice feedback (browser TTS)">
+                                    🔊 Voice: ON
+                                </button>
+                                <button class="btn btn-secondary" id="btnScreenShare"
+                                    style="font-size:12px" title="Share your screen instead of webcam">
+                                    🖥️ Screen
+                                </button>
+                                <button class="btn btn-secondary" id="btnToggleOverlay"
+                                    style="margin-left:auto;font-size:12px" title="Toggle detection overlay">
+                                    🎯 Overlay: ON
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Metrics + Log + Agent -->
+                        <div style="display:flex;flex-direction:column;gap:12px">
+                            <!-- Real-time metrics dashboard -->
+                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"
+                                id="streamMetricsGrid">
+                                <div
+                                    style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:var(--accent-1)" id="metricChunks">
+                                        0</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        Chunks</div>
+                                </div>
+                                <div
+                                    style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:#10b981" id="metricLatency">—</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        Avg Latency</div>
+                                </div>
+                                <div
+                                    style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:#a855f7" id="metricObjects">0</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        Objects</div>
+                                </div>
+                                <div
+                                    style="background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:#ec4899" id="metricFrames">0</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        Frames</div>
+                                </div>
+                                <div
+                                    style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:#f59e0b" id="metricP90">—</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        P90 Latency</div>
+                                </div>
+                                <div
+                                    style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                                    <div style="font-size:20px;font-weight:700;color:#0ea5e9" id="metricFPS">—</div>
+                                    <div
+                                        style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">
+                                        Model FPS</div>
+                                </div>
+                            </div>
+
+                            <!-- Session timer + Audio visualizer -->
+                            <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+                                <div class="session-timer" id="sessionTimer">00:00</div>
+                                <div class="audio-bars" id="audioVisualizer">
+                                    <div class="audio-bar" style="height:4px"></div>
+                                    <div class="audio-bar" style="height:6px"></div>
+                                    <div class="audio-bar" style="height:3px"></div>
+                                    <div class="audio-bar" style="height:8px"></div>
+                                    <div class="audio-bar" style="height:5px"></div>
+                                    <div class="audio-bar" style="height:10px"></div>
+                                    <div class="audio-bar" style="height:7px"></div>
+                                    <div class="audio-bar" style="height:4px"></div>
+                                    <div class="audio-bar" style="height:9px"></div>
+                                    <div class="audio-bar" style="height:6px"></div>
+                                    <div class="audio-bar" style="height:3px"></div>
+                                    <div class="audio-bar" style="height:7px"></div>
+                                </div>
+                                <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px" id="streamSourceLabel">Camera</div>
+                            </div>
+
+                            <!-- Fitness coach panel (pose + rep counting) -->
+                            <div id="coachPanel"
+                                style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.18);border-radius:var(--radius-sm);padding:10px">
+                                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                                    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#10b981">
+                                        🏋️ Live Coach
+                                    </div>
+                                    <div style="display:flex;gap:8px;align-items:center">
+                                        <label style="font-size:11px;color:var(--text-muted)">Exercise</label>
+                                        <select id="exerciseSelect"
+                                            style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);color:var(--text-primary);border-radius:8px;padding:6px 10px;font-size:12px;outline:none">
+                                            <option value="auto">Auto Detect</option>
+                                            <option value="squat">Squat</option>
+                                            <option value="pushup">Push-up</option>
+                                            <option value="lunge">Lunge</option>
+                                            <option value="plank">Plank (hold)</option>
+                                            <option value="jumpingjack">Jumping Jack</option>
+                                            <option value="shoulderpress">Shoulder Press</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:12px;align-items:baseline;margin-top:8px">
+                                    <div style="font-size:28px;font-weight:800;color:#10b981" id="coachReps">0</div>
+                                    <div style="font-size:12px;color:var(--text-muted)">reps</div>
+                                    <div style="display:flex;align-items:center;gap:6px;margin-left:8px">
+                                        <span style="font-size:10px;color:#f59e0b" id="coachStreakLabel"></span>
+                                    </div>
+                                    <div style="margin-left:auto;font-size:11px;color:var(--text-muted)">
+                                        <span id="coachExerciseLabel">—</span>
+                                        <span id="coachScoreLabel" style="margin-left:8px">score —</span>
+                                    </div>
+                                </div>
+                                <div id="coachCue"
+                                    style="margin-top:6px;font-size:13px;line-height:1.5;color:var(--text-secondary)">
+                                    Start streaming to get live form feedback.
+                                </div>
+                            </div>
+
+                            <!-- Detected labels (live) -->
+                            <div id="liveLabels"
+                                style="min-height:36px;display:flex;flex-wrap:wrap;gap:6px;padding:4px 0"></div>
+
+                            <!-- Stream log -->
+                            <div class="stream-log" id="streamLog"
+                                style="flex:1;min-height:140px;max-height:260px;overflow-y:auto;background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:10px;font-size:12px;font-family:'JetBrains Mono',monospace">
+                                <div style="color:var(--text-muted)">Waiting to start…</div>
+                            </div>
+
+                            <!-- Agent chat (Part 2 placeholder) -->
+                            <div id="agentChatPanel"
+                                style="background:rgba(99,102,241,0.04);border:1px solid rgba(99,102,241,0.15);border-radius:var(--radius-sm);padding:10px">
+                                <div
+                                    style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent-1);margin-bottom:6px">
+                                    🤖 Agent Response</div>
+                                <div id="agentResponse"
+                                    style="font-size:13px;color:var(--text-secondary);min-height:20px">Click any label
+                                    above to ask the agent…</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ TAB 4: Ingest URL ════════════════════ -->
+            <div class="tab-panel" id="panelUrl">
+                <div class="card">
+                    <div class="card-title">🌐 Ingest Video from URL</div>
+                    <div class="card-desc">Paste a public video URL (YouTube, Vimeo, Facebook, X/Twitter, Twitch) and
+                        we'll
+                        download, analyze, and generate notes automatically.</div>
+
+                    <div style="margin-bottom:16px">
+                        <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=..."
+                            style="width:100%;padding:14px 18px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;transition:var(--transition)" />
+                    </div>
+
+                    <div
+                        style="margin-bottom:16px;padding:12px 16px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary)">
+                        📋 Supported: YouTube, Vimeo, Facebook, X/Twitter, Twitch, Dailymotion, Instagram<br>
+                        ⚡ If captions are available, we use those (faster &amp; free). Otherwise we download and
+                        transcribe.
+                    </div>
+
+                    <label
+                        style="display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;font-size:13px">
+                        <input type="checkbox" id="urlConsent"
+                            style="width:18px;height:18px;accent-color:var(--accent-1);cursor:pointer" />
+                        <span>I confirm I have the right to analyze this video</span>
+                    </label>
+
+                    <div class="btn-row">
+                        <button class="btn btn-primary" id="btnFetchAnalyze" disabled>
+                            <span>🚀</span> Fetch &amp; Analyze
+                        </button>
+                    </div>
+
+                    <div class="progress-container" id="urlProgressArea">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar" id="urlProgressBar"></div>
+                        </div>
+                        <div class="progress-status">
+                            <span id="urlProgressLabel">Downloading…</span>
+                            <span id="urlProgressPct"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- URL Results -->
+                <div class="results" id="urlResults" style="display:none">
+                    <div class="card">
+                        <div class="card-title">✅ Analysis Complete</div>
+                        <div id="urlResultContent" style="font-size:13px;line-height:1.8"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ TAB 5: Agent Chat ═══════════════════ -->
+            <div class="tab-panel" id="panelChat">
+                <div class="card">
+                    <div class="card-title">🤖 Ask the Vision Agent</div>
+                    <div class="card-desc">Ask anything about your analyzed video. The agent uses a 2-tier intelligence system:
+                        an instant FastReply (under 500ms) from YOLO detections + transcript, followed by a deep LLM-powered
+                        PolishReply with full context analysis. Powered by Gemini/OpenAI/Cloudflare cascade.
+                    </div>
+                    <div id="chatNoAnalysis"
+                        style="margin-bottom:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:13px;color:#f59e0b">
+                        ⚠️ No analysis found yet. Upload &amp; analyze a video first, then come back to chat.
+                    </div>
+                    <div id="chatReadyHint"
+                        style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;font-size:13px;color:#22c55e">
+                        ✅ Video stem detected: <strong id="chatStemLabel">—</strong>. Ask anything about the video
+                        below!
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-empty" id="chatEmpty">
+                        <div style="font-size:48px;margin-bottom:12px">💬</div>
+                        <div style="font-size:15px;font-weight:600;color:var(--text-primary)">Start a conversation</div>
+                        <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Ask about objects detected,
+                            transcript content, or any scene details</div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-row">
+                    <input type="text" id="chatInput" placeholder="Ask about your video…" class="chat-input" />
+                    <button class="btn btn-primary chat-send-btn" id="btnChatSend">
+                        <span>🚀</span> Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- ═══════════════ TAB 6: Quiz ═══════════════════════ -->
+            <div class="tab-panel" id="panelQuiz">
+                <div class="card">
+                    <div class="card-title">🧪 Interactive Quiz</div>
+                    <div class="card-desc">Generate MCQ and short-answer questions from your video analysis. Test your
+                        understanding of the content!</div>
+                    <div id="quizNoAnalysis"
+                        style="margin-bottom:12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:13px;color:#f59e0b">
+                        ⚠️ No analysis found yet. Upload &amp; analyze a video first, then generate a quiz.
+                    </div>
+                    <div id="quizReadyHint"
+                        style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;font-size:13px;color:#22c55e">
+                        ✅ Video stem detected: <strong id="quizStemLabel">—</strong>. Click Generate Quiz!
+                    </div>
+                    <div class="btn-row" style="flex-wrap: wrap; gap: 10px;">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <label style="font-size:13px;color:var(--text-secondary)">Questions:</label>
+                            <input type="number" id="quizCount" value="5" min="1" max="20"
+                                style="width:60px;padding:8px 12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit;font-size:14px" />
+                        </div>
+                        <button class="btn btn-primary" id="btnQuizGen">
+                            <span>🎲</span> Generate Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results -->
+                <div id="quizResults" style="display:none">
+                    <div class="quiz-score-bar" id="quizScoreBar">
+                        <span id="quizScoreText">Score: 0 / 0</span>
+                        <span id="quizProviderBadge" class="quiz-provider-badge"></span>
+                    </div>
+                    <div id="quizCards"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div style="margin-bottom:12px">
+                <span class="gradient-text-animated" style="font-size:14px;font-weight:700">Vision Agent</span>
+                <span style="margin:0 8px;color:var(--border)">|</span>
+                <span style="font-size:12px;color:var(--text-muted)">Real-Time Multimodal AI Platform</span>
+            </div>
+            <div style="display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+                <a href="https://wemakedevs.org" target="_blank" style="display:flex;align-items:center;gap:4px">WeMakeDevs</a>
+                <span style="color:var(--border)">·</span>
+                <a href="https://getstream.io/video/vision-agents/" target="_blank" style="display:flex;align-items:center;gap:4px">Vision Agents SDK</a>
+                <span style="color:var(--border)">·</span>
+                <a href="/demo" target="_blank">Interactive Demo</a>
+                <span style="color:var(--border)">·</span>
+                <a href="/health" target="_blank">API Health</a>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);opacity:0.6">
+                YOLO + Gemini + MediaPipe + Whisper + WebRTC &mdash; Hackathon 2026
+                <br>Press <span class="kbd" style="display:inline;font-size:9px">?</span> for keyboard shortcuts
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confetti canvas (for celebrations) -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Keyboard shortcuts modal -->
+    <div id="kbModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+        <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:420px;width:90%">
+            <div style="font-size:16px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+                Keyboard Shortcuts
+                <button onclick="document.getElementById('kbModal').style.display='none'" style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer">&times;</button>
+            </div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px">
+                <span class="kbd">1</span><span style="color:var(--text-secondary)">Upload & Analyze tab</span>
+                <span class="kbd">2</span><span style="color:var(--text-secondary)">AI Notes tab</span>
+                <span class="kbd">3</span><span style="color:var(--text-secondary)">Live Stream tab</span>
+                <span class="kbd">4</span><span style="color:var(--text-secondary)">Ingest URL tab</span>
+                <span class="kbd">5</span><span style="color:var(--text-secondary)">Agent Chat tab</span>
+                <span class="kbd">6</span><span style="color:var(--text-secondary)">Quiz tab</span>
+                <span class="kbd">?</span><span style="color:var(--text-secondary)">Show this help</span>
+                <span class="kbd">Esc</span><span style="color:var(--text-secondary)">Close dialogs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <script>
+        // ── Utilities ────────────────────────────────────────────────────
+        function $(sel) { return document.querySelector(sel); }
+        function $$(sel) { return document.querySelectorAll(sel); }
+
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `
+                <span>${type === 'success' ? '✅' : '❌'}</span>
+                <span style="flex:1">${msg}</span>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 4px">&times;</button>
+                <div style="position:absolute;bottom:0;left:0;height:2px;background:${type === 'success' ? 'var(--success)' : 'var(--error)'};border-radius:0 0 var(--radius-sm) var(--radius-sm);animation:toastTimer 4s linear forwards;width:100%"></div>
+            `;
+            t.style.position = 'relative';
+            $('#toastContainer').appendChild(t);
+            setTimeout(() => { if (t.parentElement) t.remove(); }, 4200);
+        }
+        // Toast timer CSS injection
+        (function(){
+            const s = document.createElement('style');
+            s.textContent = '@keyframes toastTimer { from { width: 100%; } to { width: 0%; } }';
+            document.head.appendChild(s);
+        })();
+
+        // ── Tab switching with animated transitions ─────────────────────
+        function capitalise(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        $$('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const oldPanel = $('.tab-panel.active');
+                const newId = `#panel${capitalise(tab.dataset.tab)}`;
+                const newPanel = $(newId);
+                if (oldPanel === newPanel) return;
+
+                $$('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Animate out old panel
+                if (oldPanel) {
+                    oldPanel.animate(
+                        [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(6px)' }],
+                        { duration: 150, easing: 'cubic-bezier(.2,.9,.2,1)' }
+                    ).onfinish = () => {
+                        oldPanel.classList.remove('active');
+                        // Animate in new panel
+                        newPanel.classList.add('active');
+                        newPanel.animate(
+                            [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+                            { duration: 250, easing: 'cubic-bezier(.22,1,.36,1)' }
+                        );
+                    };
+                } else {
+                    newPanel.classList.add('active');
+                }
+            });
+        });
+
+        // ── Logo eye blink ────────────────────────────────────────────────
+        (function setupLogoBlink() {
+            const logo = $('#logoEl');
+            if (!logo) return;
+            const eyelid = logo.querySelector('.logo-eye');
+            if (!eyelid) return;
+
+            function blink() {
+                eyelid.animate(
+                    [{ opacity: 0 }, { opacity: 1 }, { opacity: 1 }, { opacity: 0 }],
+                    { duration: 220, easing: 'ease-in-out' }
+                );
+                const next = 5000 + Math.random() * 5000;
+                setTimeout(blink, next);
+            }
+            setTimeout(blink, 2000);
+
+            // Quick blink on hover
+            logo.addEventListener('mouseenter', () => {
+                eyelid.animate(
+                    [{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }],
+                    { duration: 150, easing: 'ease' }
+                );
+            });
+        })();
+
+        // ── Button ripple/glow effect ─────────────────────────────────────
+        document.addEventListener('mousemove', e => {
+            const btn = e.target.closest('.btn');
+            if (btn) {
+                const r = btn.getBoundingClientRect();
+                btn.style.setProperty('--x', ((e.clientX - r.left) / r.width * 100) + '%');
+                btn.style.setProperty('--y', ((e.clientY - r.top) / r.height * 100) + '%');
+            }
+        });
+
+        // ── Sparkle burst (reusable) ──────────────────────────────────────
+        function sparkle(x, y, count = 8) {
+            const c = document.createElement('div');
+            c.className = 'sparkle-container';
+            c.style.left = x + 'px'; c.style.top = y + 'px';
+            for (let i = 0; i < count; i++) {
+                const s = document.createElement('div');
+                s.className = 'sparkle';
+                const angle = (Math.PI * 2 * i) / count;
+                const dist = 20 + Math.random() * 30;
+                s.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                s.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                s.style.background = ['#6366f1', '#8b5cf6', '#a855f7', '#22c55e', '#fff'][Math.floor(Math.random() * 5)];
+                s.style.width = (3 + Math.random() * 5) + 'px';
+                s.style.height = s.style.width;
+                c.appendChild(s);
+            }
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 1000);
+        }
+
+        // ── Drop Zone ───────────────────────────────────────────────────
+        const dz = $('#dropzone');
+        const fi = $('#fileInput');
+        let selectedFile = null;
+
+        dz.addEventListener('click', () => fi.click());
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault(); dz.classList.remove('dragover');
+            if (e.dataTransfer.files.length) { selectedFile = e.dataTransfer.files[0]; onFileSelected(); }
+        });
+        fi.addEventListener('change', () => { if (fi.files.length) { selectedFile = fi.files[0]; onFileSelected(); } });
+
+        function onFileSelected() {
+            dz.querySelector('.dropzone-text').textContent = selectedFile.name;
+            dz.querySelector('.dropzone-sub').textContent =
+                `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB — ready to upload`;
+            $('#btnUpload').disabled = false;
+            $('#btnAnalyze').disabled = false;
+        }
+
+        // ── Upload / Analyze (real XHR progress) ─────────────────────────
+        function doUpload(endpoint) {
+            if (!selectedFile) return;
+            const fd = new FormData();
+            fd.append('file', selectedFile);
+            const pa = $('#progressArea');
+            pa.classList.add('visible');
+            $('#progressBar').style.width = '0%';
+            $('#progressBar').style.background = 'var(--gradient-main)';
+            $('#progressLabel').textContent = 'Uploading…';
+            $('#progressPct').textContent = '0%';
+            $('#btnUpload').disabled = true;
+            $('#btnAnalyze').disabled = true;
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', endpoint, true);
+
+            // Real upload progress from XHR
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    // Upload phase = 0-50% of total bar, server processing = 50-100%
+                    const barPct = Math.round(pct * 0.5);
+                    $('#progressBar').style.width = barPct + '%';
+                    $('#progressPct').textContent = barPct + '%';
+                    if (pct >= 100) {
+                        $('#progressLabel').textContent = endpoint === '/upload' ? 'Extracting frames…' : 'Analyzing (frames + audio + detection)…';
+                    }
+                }
+            };
+
+            // Upload complete, now waiting for server response
+            xhr.upload.onload = () => {
+                $('#progressBar').style.width = '50%';
+                $('#progressPct').textContent = '50%';
+                $('#progressLabel').textContent = endpoint === '/upload' ? 'Server processing…' : 'Server analyzing (this may take a minute)…';
+                // Animate from 50% to 95% slowly while server works
+                let fakePct = 50;
+                window._serverWaitInterval = setInterval(() => {
+                    fakePct = Math.min(fakePct + Math.random() * 2, 95);
+                    $('#progressBar').style.width = fakePct + '%';
+                    $('#progressPct').textContent = Math.round(fakePct) + '%';
+                }, 800);
+            };
+
+            xhr.onload = () => {
+                clearInterval(window._serverWaitInterval);
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    $('#progressBar').style.width = '100%';
+                    $('#progressPct').textContent = '100%';
+                    if (data.ok && data.warnings && data.warnings.length) {
+                        $('#progressLabel').textContent = 'Complete with warnings ⚠️';
+                        $('#progressBar').style.background = 'linear-gradient(135deg, #f59e0b, #eab308)';
+                    } else {
+                        $('#progressLabel').textContent = data.ok ? 'Complete ✓' : 'Error';
+                        if (!data.ok) $('#progressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    }
+                    displayResults(data, endpoint);
+                    if (data.ok) {
+                        toast('Processing complete!', 'success');
+                        if (data.video_stem) {
+                            window._lastVideoStem = data.video_stem;
+                            $('#noteStem').value = data.video_stem;
+                            $('#notesStemHint').style.display = 'block';
+                            $('#notesNoAnalysis').style.display = 'none';
+                        }
+                    } else {
+                        toast('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                    if (data.warnings) {
+                        data.warnings.forEach(w => toast('⚠️ ' + w, 'error'));
+                    }
+                } catch (parseErr) {
+                    $('#progressLabel').textContent = 'Failed (server error)';
+                    $('#progressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    toast('Server error: ' + xhr.statusText, 'error');
+                }
+                $('#btnUpload').disabled = false;
+                $('#btnAnalyze').disabled = false;
+            };
+
+            xhr.onerror = () => {
+                clearInterval(window._serverWaitInterval);
+                $('#progressLabel').textContent = 'Network error';
+                $('#progressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                toast('Network error — check if server is running', 'error');
+                $('#btnUpload').disabled = false;
+                $('#btnAnalyze').disabled = false;
+            };
+
+            xhr.ontimeout = () => {
+                clearInterval(window._serverWaitInterval);
+                $('#progressLabel').textContent = 'Timed out';
+                $('#progressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                toast('Request timed out — try a shorter video', 'error');
+                $('#btnUpload').disabled = false;
+                $('#btnAnalyze').disabled = false;
+            };
+
+            xhr.timeout = 300000; // 5 minute timeout
+            xhr.send(fd);
+        }
+
+        $('#btnUpload').addEventListener('click', () => doUpload('/upload'));
+        $('#btnAnalyze').addEventListener('click', () => doUpload('/analyze'));
+
+        function displayResults(data, endpoint) {
+            window._lastAnalysisData = data; // cache for export
+            const area = $('#uploadResults');
+            area.style.display = 'block';
+
+            // Metrics
+            const mg = $('#metricsGrid');
+            mg.innerHTML = '';
+            const metrics = [
+                { label: 'Frames', value: data.frames_count ?? '—' },
+            ];
+            if (data.frames_time_seconds !== undefined)
+                metrics.push({ label: 'Frame Time', value: data.frames_time_seconds + 's' });
+            if (data.transcription_time_seconds !== undefined)
+                metrics.push({ label: 'Transcribe', value: data.transcription_time_seconds + 's' });
+            if (data.detection_time_seconds !== undefined)
+                metrics.push({ label: 'Detection', value: data.detection_time_seconds + 's' });
+            if (data.total_time_seconds !== undefined)
+                metrics.push({ label: 'Total', value: data.total_time_seconds + 's' });
+            metrics.forEach(m => {
+                mg.innerHTML += `<div class="metric"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div></div>`;
+            });
+
+            // Transcript
+            if (data.transcript && data.transcript.text) {
+                $('#transcriptSection').style.display = 'block';
+                $('#transcriptText').textContent = data.transcript.text;
+            } else {
+                $('#transcriptSection').style.display = 'none';
+            }
+
+            // Detections
+            if (data.detections_summary) {
+                $('#detectionsSection').style.display = 'block';
+                $('#detectionsText').textContent = JSON.stringify(data.detections_summary, null, 2);
+            } else {
+                $('#detectionsSection').style.display = 'none';
+            }
+
+            // Raw JSON
+            $('#rawJson').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Wire export buttons
+        $('#btnExportAnalysis').addEventListener('click', () => {
+            const d = window._lastAnalysisData;
+            if (!d) { toast('No analysis data yet — run Full Analysis first', 'error'); return; }
+            downloadJSON(d, `analysis_${d.video_stem || 'video'}.json`);
+        });
+        $('#btnExportTranscript').addEventListener('click', () => {
+            const d = window._lastAnalysisData;
+            if (!d) { toast('No analysis data yet — run Full Analysis first', 'error'); return; }
+            downloadJSON(d.transcript || {}, `transcript_${d.video_stem || 'video'}.json`);
+        });
+        $('#btnExportDetections').addEventListener('click', () => {
+            const d = window._lastAnalysisData;
+            if (!d) { toast('No analysis data yet — run Full Analysis first', 'error'); return; }
+            downloadJSON(d.detections_summary || {}, `detections_${d.video_stem || 'video'}.json`);
+        });
+
+        // ── Notes Generation (Async Job Flow) ────────────────────────────
+        $('#btnNotes').addEventListener('click', async () => {
+            const stem = $('#noteStem').value.trim() || 'video';
+            const btn = $('#btnNotes');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Starting…';
+
+            try {
+                // Step 1: POST to start the notes job
+                const resp = await fetch(`/generate_notes?video_stem=${encodeURIComponent(stem)}`, { method: 'POST' });
+                const data = await resp.json();
+
+                if (data.detail) throw new Error(data.detail);
+                if (!data.ok || !data.job_id) throw new Error(data.error || 'Failed to start notes job');
+
+                const jobId = data.job_id;
+                btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+                // Step 2: Poll for progress
+                pollJob(jobId,
+                    // onUpdate
+                    (job) => {
+                        const pct = job.progress || 0;
+                        btn.innerHTML = `<span class="spinner"></span> ${job.step || 'Generating…'} (${pct}%)`;
+                    },
+                    // onDone
+                    async (job) => {
+                        const result = job.result || {};
+                        try {
+                            // Fetch the saved notes.json from the server
+                            const notesResp = await fetch(`/analysis/${encodeURIComponent(result.video_stem || stem)}/notes.json`);
+                            if (notesResp.ok) {
+                                const notes = await notesResp.json();
+                                displayNotes(notes);
+                            } else {
+                                displayNotes(result);
+                            }
+                        } catch (e) {
+                            displayNotes(result);
+                        }
+
+                        // Show provider badge
+                        const provName = result.llm_provider || 'unknown';
+                        const isFallback = result.is_fallback;
+                        let badge = '';
+                        if (isFallback) {
+                            badge = `<span style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(234,179,8,0.15);color:#eab308;border:1px solid rgba(234,179,8,0.3)">⚠ Auto-summary mode</span>`;
+                            if (result.warning) badge += ` <span style="font-size:11px;color:var(--text-muted)">${result.warning}</span>`;
+                        } else {
+                            const pName = provName.charAt(0).toUpperCase() + provName.slice(1);
+                            badge = `<span style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">✓ Generated with ${pName}</span>`;
+                        }
+                        const badgeEl = document.createElement('div');
+                        badgeEl.style.marginBottom = '12px';
+                        badgeEl.innerHTML = badge;
+                        const notesResults = $('#notesResults');
+                        if (notesResults && notesResults.firstChild) {
+                            notesResults.insertBefore(badgeEl, notesResults.firstChild);
+                        }
+
+                        toast('Notes generated successfully!');
+                        btn.disabled = false;
+                        btn.innerHTML = '<span>✨</span> Generate Notes';
+                    },
+                    // onFail
+                    (job) => {
+                        toast('Error: ' + (job.error || 'Notes generation failed'), 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<span>✨</span> Generate Notes';
+                    }
+                );
+
+            } catch (err) {
+                toast('Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<span>✨</span> Generate Notes';
+            }
+        });
+
+        function displayNotes(n) {
+            $('#notesResults').style.display = 'block';
+
+            // Summary
+            $('#notesSummary').textContent = n.summary || '—';
+
+            // Key concepts
+            const tags = $('#notesConceptTags');
+            tags.innerHTML = '';
+            (n.key_concepts || []).forEach(c => {
+                tags.innerHTML += `<span class="tag">${c}</span>`;
+            });
+
+            // Formulas
+            const fArea = $('#notesFormulas');
+            fArea.innerHTML = '';
+            (n.formulas || []).forEach(f => {
+                fArea.innerHTML += `<div class="formula-card">
+          <div class="formula-latex">${f.latex || ''}</div>
+          <div class="formula-explain">${f.explanation || ''} ${f.timestamp ? `(t=${f.timestamp}s)` : ''}</div>
+        </div>`;
+            });
+
+            // Viva
+            const vArea = $('#notesViva');
+            vArea.innerHTML = '';
+            const viva = n.viva_questions || {};
+            ['easy', 'medium', 'hard'].forEach(level => {
+                if (viva[level] && viva[level].length) {
+                    let html = `<div class="question-group ${level}"><h4>${level}</h4>`;
+                    viva[level].forEach(q => { html += `<div class="question-item">${q}</div>`; });
+                    html += '</div>';
+                    vArea.innerHTML += html;
+                }
+            });
+
+            // Highlights
+            const hArea = $('#notesHighlights');
+            hArea.innerHTML = '';
+            (n.highlights || []).forEach(h => {
+                hArea.innerHTML += `<div class="highlight-item">
+          <div class="highlight-time">${h.timestamp ? h.timestamp + 's' : '—'}</div>
+          <div class="highlight-text">${h.text || ''}</div>
+        </div>`;
+            });
+
+            // Raw
+            $('#notesRawJson').textContent = JSON.stringify(n, null, 2);
+        }
+
+        // ── Live Streaming (Enhanced — Bbox + Metrics) ─────────────────
+        let mediaRecorder = null;
+        let webcamStream = null;
+        let chunkIdx = 0;
+        let totalChunks = 0;
+        let totalElapsed = 0;
+        let totalDetections = 0;
+        let totalFrames = 0;
+        let overlayEnabled = true;
+        let voiceEnabled = true;
+        let lastSpokenCue = "";
+        let lastDetections = []; // for canvas drawing
+        const videoStem = 'live_' + Date.now();
+        const chunkLatencies = [];
+
+        function speakCoach(text) {
+            try {
+                if (!voiceEnabled) return;
+                if (!('speechSynthesis' in window)) return;
+                const t = (text || '').trim();
+                if (!t) return;
+                // Avoid repeating the same line too often
+                if (t === lastSpokenCue) return;
+                lastSpokenCue = t;
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(t);
+                u.rate = 1.05;
+                u.pitch = 1.0;
+                u.volume = 1.0;
+                window.speechSynthesis.speak(u);
+            } catch (e) { /* ignore */ }
+        }
+
+        // Bbox color palette (vibrant)
+        const BBOX_COLORS = [
+            '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#0ea5e9',
+            '#a855f7', '#ef4444', '#14b8a6', '#f97316', '#8b5cf6'
+        ];
+        const labelColorMap = {};
+        let colorIdx = 0;
+        function getColorForLabel(label) {
+            if (!labelColorMap[label]) {
+                labelColorMap[label] = BBOX_COLORS[colorIdx % BBOX_COLORS.length];
+                colorIdx++;
+            }
+            return labelColorMap[label];
+        }
+
+        function addLog(msg) {
+            const log = $('#streamLog');
+            const t = new Date().toLocaleTimeString();
+            log.innerHTML += `<div style="margin-bottom:2px"><span style="color:var(--text-muted)">[${t}]</span> ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // ── Draw bounding boxes on canvas ────────────────────────────
+        function drawBboxes(perFrameDetections) {
+            const canvas = $('#bboxCanvas');
+            const video = $('#videoPreview');
+            if (!canvas || !video || !overlayEnabled) return;
+
+            const ctx = canvas.getContext('2d');
+            // Match canvas resolution to video display
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!perFrameDetections || perFrameDetections.length === 0) return;
+
+            // Use the last frame's detections (most recent)
+            const lastFrame = perFrameDetections[perFrameDetections.length - 1];
+            if (!lastFrame || !lastFrame.detections) return;
+
+            lastDetections = lastFrame.detections;
+
+            // We need to scale bbox coords from frame resolution to canvas size
+            // YOLO returns absolute pixel coords in the extracted frame (typically 640x480 or similar)
+            // We'll estimate frame size from the video element
+            const vw = video.videoWidth || 640;
+            const vh = video.videoHeight || 480;
+            const scaleX = canvas.width / vw;
+            const scaleY = canvas.height / vh;
+
+            lastFrame.detections.forEach(det => {
+                if (!det.bbox || det.bbox.length < 4) return;
+                const [x1, y1, x2, y2] = det.bbox;
+                const sx = x1 * scaleX, sy = y1 * scaleY;
+                const sw = (x2 - x1) * scaleX, sh = (y2 - y1) * scaleY;
+                const color = getColorForLabel(det.label);
+
+                // Draw box
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(sx, sy, sw, sh);
+
+                // Draw label background
+                const labelText = `${det.label} ${(det.confidence * 100).toFixed(0)}%`;
+                ctx.font = 'bold 11px "Inter", sans-serif';
+                const tm = ctx.measureText(labelText);
+                const lh = 16;
+                ctx.fillStyle = color;
+                ctx.fillRect(sx, sy - lh - 2, tm.width + 8, lh + 2);
+
+                // Draw label text
+                ctx.fillStyle = '#fff';
+                ctx.fillText(labelText, sx + 4, sy - 4);
+            });
+        }
+
+        // ── Update metrics dashboard ─────────────────────────────────
+        function updateStreamMetrics(latencyMs) {
+            if (latencyMs != null) chunkLatencies.push(latencyMs);
+            const el = (id) => document.getElementById(id);
+
+            el('metricChunks').textContent = totalChunks;
+            el('metricFrames').textContent = totalFrames;
+            el('metricObjects').textContent = totalDetections;
+
+            if (chunkLatencies.length > 0) {
+                const avg = chunkLatencies.reduce((a, b) => a + b, 0) / chunkLatencies.length;
+                el('metricLatency').textContent = (avg / 1000).toFixed(2) + 's';
+
+                const sorted = [...chunkLatencies].sort((a, b) => a - b);
+                const p90Idx = Math.min(Math.floor(sorted.length * 0.9), sorted.length - 1);
+                el('metricP90').textContent = (sorted[p90Idx] / 1000).toFixed(2) + 's';
+
+                const fps = avg > 0 ? (1000 / avg).toFixed(1) : '—';
+                el('metricFPS').textContent = fps;
+            }
+        }
+
+        // ── Update live label badges ─────────────────────────────────
+        function updateLiveLabels(topLabels) {
+            const container = $('#liveLabels');
+            if (!container || !topLabels) return;
+            container.innerHTML = '';
+            topLabels.forEach(l => {
+                const color = getColorForLabel(l.label);
+                container.innerHTML += `<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:${color}22;color:${color};border:1px solid ${color}44;cursor:pointer" onclick="askAboutLabel('${l.label}')">${l.label} ×${l.count}</span>`;
+            });
+        }
+
+        // ── Ask agent about a label (2-Tier: Fast + Polish) ─────────
+        window.askAboutLabel = async function (label) {
+            const panel = $('#agentResponse');
+            if (!panel) return;
+
+            const question = `What can you tell me about the "${label}" detected in this video? What is it doing and what context can you provide?`;
+            panel.innerHTML = `<span style="color:var(--accent-1)">🤖 Asking about "${label}"...</span>`;
+
+            try {
+                const resp = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_stem: videoStem, question })
+                });
+                const data = await resp.json();
+
+                // Show FastReply immediately (green badge)
+                if (data.fast_reply) {
+                    const fr = data.fast_reply;
+                    let provHtml = '';
+                    if (fr.provenance && fr.provenance.length) {
+                        provHtml = fr.provenance.map(p =>
+                            `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;background:rgba(99,102,241,0.1);color:var(--accent-1);margin-left:4px">${p.type}: ${p.detail}</span>`
+                        ).join('');
+                    }
+                    panel.innerHTML = `
+                        <div style="margin-bottom:8px">
+                            <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:rgba(16,185,129,0.15);color:#10b981;margin-bottom:4px">⚡ Fast Reply (${fr.latency_ms}ms)</span>
+                            ${provHtml}
+                        </div>
+                        <div style="font-size:13px;line-height:1.5">${fr.reply}</div>
+                    `;
+                }
+
+                // Poll for PolishReply
+                if (data.job_id) {
+                    const jobId = data.job_id;
+                    const pollInterval = setInterval(async () => {
+                        try {
+                            const jr = await fetch(`/jobs/${jobId}`);
+                            const job = await jr.json();
+                            if (job.status === 'done' && job.result) {
+                                clearInterval(pollInterval);
+                                const pr = job.result;
+                                let provHtml = '';
+                                if (pr.provenance && pr.provenance.length) {
+                                    provHtml = pr.provenance.map(p =>
+                                        `<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;background:rgba(168,85,247,0.1);color:#a855f7;margin-left:4px">${p.type}: ${p.detail}</span>`
+                                    ).join('');
+                                }
+                                panel.innerHTML += `
+                                    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)">
+                                        <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:rgba(168,85,247,0.15);color:#a855f7;margin-bottom:4px">🧠 ${pr.source === 'fallback' ? 'Fallback' : 'AI Polish'} ${pr.provider || ''}</span>
+                                        ${provHtml}
+                                        <div style="font-size:13px;line-height:1.5;margin-top:4px">${pr.reply}</div>
+                                    </div>
+                                `;
+                            } else if (job.status === 'failed') {
+                                clearInterval(pollInterval);
+                                panel.innerHTML += `<div style="margin-top:6px;color:#ef4444;font-size:12px">⚠️ ${job.error || 'LLM polish failed'}</div>`;
+                            }
+                        } catch (e) { /* silently retry */ }
+                    }, 2000);
+                    // Stop polling after 30s
+                    setTimeout(() => clearInterval(pollInterval), 30000);
+                }
+            } catch (err) {
+                panel.innerHTML = `<span style="color:#ef4444">❌ Agent error: ${err.message}</span>`;
+            }
+        };
+
+        // ── Toggle overlay ───────────────────────────────────────────
+        $('#btnToggleOverlay').addEventListener('click', () => {
+            overlayEnabled = !overlayEnabled;
+            $('#btnToggleOverlay').textContent = overlayEnabled ? '🎯 Overlay: ON' : '🎯 Overlay: OFF';
+            if (!overlayEnabled) {
+                const canvas = $('#bboxCanvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        });
+
+        // ── Toggle coach voice (browser TTS) ─────────────────────────
+        $('#btnToggleVoice').addEventListener('click', () => {
+            voiceEnabled = !voiceEnabled;
+            $('#btnToggleVoice').textContent = voiceEnabled ? '🔊 Voice: ON' : '🔇 Voice: OFF';
+            if (!voiceEnabled) {
+                try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { }
+            }
+        });
+
+        // ── Start stream ─────────────────────────────────────────────
+        $('#btnStartStream').addEventListener('click', async () => {
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                $('#videoPreview').srcObject = webcamStream;
+
+                let mimeType = 'video/webm;codecs=vp8,opus';
+                if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+                mediaRecorder = new MediaRecorder(webcamStream, { mimeType });
+                chunkIdx = 0; totalChunks = 0; totalElapsed = 0; totalDetections = 0; totalFrames = 0;
+                chunkLatencies.length = 0;
+                $('#streamLog').innerHTML = '';
+                addLog('🟢 Stream started — sending 2s chunks with YOLO detection');
+
+                mediaRecorder.ondataavailable = async (e) => {
+                    if (!e.data || e.data.size === 0) return;
+                    chunkIdx++;
+                    totalChunks++;
+                    addLog(`📤 Chunk #${chunkIdx} (${(e.data.size / 1024).toFixed(0)} KB)`);
+
+                    const fd = new FormData();
+                    fd.append('video_stem', videoStem);
+                    fd.append('chunk_index', chunkIdx);
+                    fd.append('total_chunks', 0);
+                    const exSel = $('#exerciseSelect');
+                    const ex = exSel ? (exSel.value || 'auto') : 'auto';
+                    fd.append('exercise', ex);
+                    fd.append('file', e.data, `chunk_${String(chunkIdx).padStart(3, '0')}.webm`);
+
+                    const t0 = performance.now();
+                    try {
+                        const resp = await fetch('/stream_chunk', { method: 'POST', body: fd });
+                        const j = await resp.json();
+                        const ms = Math.round(performance.now() - t0);
+                        totalElapsed += ms / 1000;
+
+                        if (j.ok) {
+                            totalFrames += j.frames_count || 0;
+                            totalDetections += j.detections_count || 0;
+
+                            // Update overlays
+                            const latOverlay = $('#latencyOverlay');
+                            if (latOverlay) { latOverlay.style.display = 'block'; $('#latencyMs').textContent = j.elapsed_ms || ms; }
+                            const detBadge = $('#detCountBadge');
+                            if (detBadge && j.detections_count > 0) { detBadge.style.display = 'block'; $('#detCountNum').textContent = j.detections_count; }
+
+                            // Draw bounding boxes
+                            if (j.per_frame_detections) drawBboxes(j.per_frame_detections);
+
+                            // Update live labels
+                            if (j.top_labels) updateLiveLabels(j.top_labels);
+
+                            // Fitness coach UI
+                            if (j.coach) {
+                                const repsEl = $('#coachReps');
+                                const cueEl = $('#coachCue');
+                                const exEl = $('#coachExerciseLabel');
+                                const scoreEl = $('#coachScoreLabel');
+                                const streakEl = $('#coachStreakLabel');
+                                if (repsEl) animateNumber(repsEl, j.coach.reps ?? 0, 300);
+                                if (cueEl) cueEl.textContent = j.coach.cue || '—';
+                                if (exEl) exEl.textContent = (j.coach.exercise || j.exercise || 'auto').toUpperCase();
+                                if (scoreEl) scoreEl.textContent = `score ${(j.coach.score ?? '—')}`;
+                                if (streakEl && j.coach.streak > 0) {
+                                    streakEl.textContent = `streak ${j.coach.streak}`;
+                                    if (j.coach.streak >= 5) streakEl.style.color = '#22c55e';
+                                    else if (j.coach.streak >= 3) streakEl.style.color = '#f59e0b';
+                                }
+
+                                // Pose skeleton overlay
+                                if (j.pose) drawPoseSkeleton(j.pose);
+
+                                // Speak cue when it changes
+                                if (j.coach.cue) speakCoach(j.coach.cue);
+
+                                // Celebrate milestones
+                                if (j.coach.reps > 0 && j.coach.reps % 10 === 0 && j.coach.stage === 'up') {
+                                    confettiEngine.fire(undefined, undefined, 40);
+                                }
+                            }
+
+                            addLog(`✅ #${j.chunk_index} — ${j.elapsed_ms}ms server | ${j.frames_count} frames | ${j.detections_count} detections`);
+                            if (j.transcript_snippet && j.transcript_snippet.length > 5) {
+                                addLog(`🎙️ "${j.transcript_snippet.slice(0, 100)}"`);
+                            }
+                        } else {
+                            addLog(`❌ Error: ${j.error}`);
+                        }
+                    } catch (err) {
+                        addLog(`❌ Network: ${err.message}`);
+                    }
+                    updateStreamMetrics(performance.now() - t0);
+                };
+
+                mediaRecorder.start(2000);
+                $('#btnStartStream').disabled = true;
+                $('#btnStopStream').disabled = false;
+                $('#btnFinalize').disabled = true;
+                const videoContainer = $('#videoPreview').closest('div[style*="position:relative"]');
+                if (videoContainer) videoContainer.classList.add('video-container-live');
+            } catch (err) {
+                toast('Webcam access denied: ' + err.message, 'error');
+            }
+        });
+
+        // ── Stop stream ──────────────────────────────────────────────
+        $('#btnStopStream').addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+            $('#videoPreview').srcObject = null;
+            const videoContainer = $('#videoPreview').closest('div[style*="position:relative"]');
+            if (videoContainer) videoContainer.classList.remove('video-container-live');
+            addLog('🔴 Stream stopped');
+            $('#btnStartStream').disabled = false;
+            $('#btnStopStream').disabled = true;
+            $('#btnFinalize').disabled = false;
+
+            // Fetch final metrics from server
+            fetch(`/stream_status?video_stem=${encodeURIComponent(videoStem)}`)
+                .then(r => r.json())
+                .then(status => {
+                    if (status.ok) {
+                        addLog(`📊 Final: ${status.chunks_processed} chunks, ${status.frames_total} frames, avg ${status.avg_chunk_latency_ms}ms/chunk, ${status.total_detections} total detections`);
+                        if (status.coach && (status.coach.reps != null)) {
+                            addLog(`🏋️ Coach: ${(status.coach.exercise || 'auto').toUpperCase()} — ${status.coach.reps} reps`);
+                        }
+                        if (status.model_metrics) {
+                            const mm = status.model_metrics;
+                            addLog(`🧠 Model: ${mm.model} | ${mm.avg_latency_ms}ms avg | ${mm.model_fps} FPS | ${mm.total_inferences} inferences`);
+                            const el = (id) => document.getElementById(id);
+                            if (mm.model_fps) el('metricFPS').textContent = mm.model_fps;
+                        }
+                    }
+                }).catch(() => { });
+        });
+
+        // ── Finalize ─────────────────────────────────────────────────
+        $('#btnFinalize').addEventListener('click', async () => {
+            addLog('🔗 Finalizing — stitching chunks and running full analysis…');
+            $('#btnFinalize').disabled = true;
+            const fd = new FormData();
+            fd.append('video_stem', videoStem);
+            try {
+                const resp = await fetch('/stream_finalize', { method: 'POST', body: fd });
+                const data = await resp.json();
+                addLog('✅ Finalize complete — see Upload tab for full results');
+                $('#tabUpload').click();
+                displayResults(data, '/analyze');
+                toast('Stream finalized & full analysis ready!');
+            } catch (err) {
+                addLog(`❌ Finalize error: ${err.message}`);
+                toast('Finalize error: ' + err.message, 'error');
+            }
+        });
+        // ── URL Ingestion (Async Job Flow) ───────────────────────────
+        function updateUrlBtn() {
+            const url = ($('#urlInput') || {}).value || '';
+            const consent = ($('#urlConsent') || {}).checked || false;
+            const btn = $('#btnFetchAnalyze');
+            if (btn) btn.disabled = !(url.trim().startsWith('http') && consent);
+        }
+        if ($('#urlInput')) $('#urlInput').addEventListener('input', updateUrlBtn);
+        if ($('#urlConsent')) $('#urlConsent').addEventListener('change', updateUrlBtn);
+
+        // Poll a job until done/failed
+        function pollJob(jobId, onUpdate, onDone, onFail) {
+            const poll = async () => {
+                try {
+                    const resp = await fetch(`/jobs/${jobId}`);
+                    const job = await resp.json();
+                    if (onUpdate) onUpdate(job);
+
+                    if (job.status === 'done') { onDone(job); return; }
+                    if (job.status === 'failed') { onFail(job); return; }
+                    setTimeout(poll, 2000);
+                } catch (err) {
+                    onFail({ error: 'Network error: ' + err.message });
+                }
+            };
+            setTimeout(poll, 800); // first poll after 800ms
+        }
+
+        if ($('#btnFetchAnalyze')) {
+            $('#btnFetchAnalyze').addEventListener('click', async () => {
+                const url = $('#urlInput').value.trim();
+                if (!url) return toast('Please enter a URL', 'error');
+                if (!$('#urlConsent').checked) return toast('Please confirm consent', 'error');
+
+                const btn = $('#btnFetchAnalyze');
+                btn.disabled = true;
+                const pa = $('#urlProgressArea');
+                pa.classList.add('visible');
+                $('#urlProgressBar').style.width = '0%';
+                $('#urlProgressBar').style.background = 'var(--gradient-main)';
+                $('#urlProgressLabel').textContent = 'Starting job…';
+                $('#urlProgressPct').textContent = '0%';
+                $('#urlResults').style.display = 'none';
+
+                try {
+                    // Step 1: POST to start the job
+                    const startResp = await fetch('/fetch_and_analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-Consent': 'true'
+                        },
+                        body: JSON.stringify({
+                            url: url,
+                            consent: true,
+                            use_captions_if_available: true,
+                            max_duration: 900
+                        })
+                    });
+                    const startData = await startResp.json();
+
+                    if (!startData.ok) {
+                        $('#urlProgressLabel').textContent = 'Error';
+                        $('#urlProgressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                        toast('Error: ' + (startData.error || 'Unknown error'), 'error');
+                        btn.disabled = false;
+                        updateUrlBtn();
+                        return;
+                    }
+
+                    const jobId = startData.job_id;
+                    $('#urlProgressLabel').textContent = `Job started (${jobId})…`;
+
+                    // Step 2: Poll for progress
+                    pollJob(jobId,
+                        // onUpdate — real progress from server
+                        (job) => {
+                            const pct = job.progress || 0;
+                            $('#urlProgressBar').style.width = pct + '%';
+                            $('#urlProgressPct').textContent = pct + '%';
+                            $('#urlProgressLabel').textContent = job.step || 'Processing…';
+                        },
+                        // onDone
+                        (job) => {
+                            const r = job.result || {};
+                            $('#urlProgressBar').style.width = '100%';
+                            $('#urlProgressPct').textContent = '100%';
+                            $('#urlProgressLabel').textContent = r.cached ? 'Complete (cached) ✓' : 'Complete ✓';
+
+                            const stem = r.analysis_stem || '';
+                            let html = `<p><strong>Analysis Stem:</strong> ${stem}</p>`;
+                            html += `<p><strong>Source URL:</strong> ${r.source_url || url}</p>`;
+                            if (r.transcript_source) html += `<p><strong>Transcript Source:</strong> <span style="color:var(--accent-1)">${r.transcript_source}</span></p>`;
+                            if (r.frames_count) html += `<p><strong>Frames Extracted:</strong> ${r.frames_count}</p>`;
+
+                            // LLM provider badge
+                            const llmName = r.llm_provider || 'unknown';
+                            const isFallback = r.is_fallback;
+                            if (isFallback) {
+                                html += `<p><span style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(234,179,8,0.15);color:#eab308;border:1px solid rgba(234,179,8,0.3)">⚠ No LLM configured (Gemini/OpenAI). Using auto-summary mode.</span></p>`;
+                            } else {
+                                const provName = llmName.charAt(0).toUpperCase() + llmName.slice(1);
+                                html += `<p><span style="display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">✓ Notes generated with ${provName}</span></p>`;
+                            }
+
+                            if (r.warnings && r.warnings.length) {
+                                html += '<p style="color:var(--warning)"><strong>Warnings:</strong></p><ul>';
+                                r.warnings.forEach(w => html += `<li style="color:var(--warning);font-size:12px">${w}</li>`);
+                                html += '</ul>';
+                            }
+                            if (r.cached) html += '<p style="color:var(--text-muted)">ℹ️ Using cached analysis from a previous fetch of this URL.</p>';
+
+                            $('#urlResultContent').innerHTML = html;
+                            $('#urlResults').style.display = 'block';
+                            toast('URL analysis complete!', 'success');
+                            if (typeof emitSparkles === 'function') emitSparkles($('#btnFetchAnalyze'));
+
+                            // Auto-populate AI Notes tab
+                            if (stem) {
+                                window._lastVideoStem = stem;
+                                if ($('#noteStem')) {
+                                    $('#noteStem').value = stem;
+                                    if ($('#notesStemHint')) $('#notesStemHint').style.display = 'block';
+                                    if ($('#notesNoAnalysis')) $('#notesNoAnalysis').style.display = 'none';
+                                }
+                            }
+
+                            btn.disabled = false;
+                            updateUrlBtn();
+                        },
+                        // onFail
+                        (job) => {
+                            $('#urlProgressLabel').textContent = 'Failed';
+                            $('#urlProgressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                            toast('Error: ' + (job.error || 'Unknown error'), 'error');
+                            btn.disabled = false;
+                            updateUrlBtn();
+                        }
+                    );
+
+                } catch (err) {
+                    $('#urlProgressLabel').textContent = 'Failed';
+                    $('#urlProgressBar').style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    toast('Network error: ' + err.message, 'error');
+                    btn.disabled = false;
+                    updateUrlBtn();
+                }
+            });
+        }
+        // ══════════════════════════════════════════════════════════════════
+        // AGENT CHAT (Tab 5)
+        // ══════════════════════════════════════════════════════════════════
+        (function initChat() {
+            const msgArea = $('#chatMessages');
+            const input = $('#chatInput');
+            const sendBtn = $('#btnChatSend');
+            if (!msgArea || !input || !sendBtn) return;
+
+            function getStem() {
+                return window._lastVideoStem || ($('#noteStem') && $('#noteStem').value.trim()) || 'video';
+            }
+
+            function addMsg(role, html) {
+                const empty = $('#chatEmpty');
+                if (empty) empty.remove();
+                const div = document.createElement('div');
+                div.className = `chat-msg ${role}`;
+                const avatar = role === 'user' ? '👤' : '🤖';
+                div.innerHTML = `<div class="chat-avatar">${avatar}</div><div class="chat-bubble">${html}</div>`;
+                msgArea.appendChild(div);
+                msgArea.scrollTop = msgArea.scrollHeight;
+                return div;
+            }
+
+            function addTyping() {
+                const div = addMsg('bot', '<div class="chat-typing"><span></span><span></span><span></span></div>');
+                div.id = 'chatTyping';
+                return div;
+            }
+
+            async function sendQuestion() {
+                const q = input.value.trim();
+                if (!q) return;
+                input.value = '';
+                addMsg('user', q);
+
+                const stem = getStem();
+                const typing = addTyping();
+                sendBtn.disabled = true;
+
+                try {
+                    const resp = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ video_stem: stem, question: q })
+                    });
+                    const data = await resp.json();
+                    if (typing) typing.remove();
+
+                    if (data.detail) {
+                        addMsg('bot', `<span style="color:#ef4444">❌ ${data.detail}</span>`);
+                        sendBtn.disabled = false;
+                        return;
+                    }
+
+                    // FastReply
+                    const fr = data.fast_reply || {};
+                    let fastHtml = `<div class="chat-badge fast">⚡ FastReply · ${fr.latency_ms || '?'}ms</div><br>`;
+                    fastHtml += fr.reply || 'No instant answer available.';
+                    if (fr.provenance && fr.provenance.length) {
+                        fastHtml += '<div class="chat-provenance">';
+                        fr.provenance.forEach(p => {
+                            fastHtml += `<span class="chat-provenance-tag">${p}</span>`;
+                        });
+                        fastHtml += '</div>';
+                    }
+                    const fastMsg = addMsg('bot', fastHtml);
+
+                    // Poll for PolishReply
+                    if (data.job_id) {
+                        const pollId = setInterval(async () => {
+                            try {
+                                const jr = await fetch(`/jobs/${data.job_id}`);
+                                const job = await jr.json();
+                                if (job.status === 'done' && job.result) {
+                                    clearInterval(pollId);
+                                    const pr = job.result;
+                                    let polishHtml = `<div class="chat-badge polish">🧠 PolishReply · ${pr.source || 'LLM'}</div><br>`;
+                                    polishHtml += pr.reply || pr.text || JSON.stringify(pr);
+                                    if (pr.provenance && pr.provenance.length) {
+                                        polishHtml += '<div class="chat-provenance">';
+                                        pr.provenance.forEach(p => {
+                                            polishHtml += `<span class="chat-provenance-tag">${p}</span>`;
+                                        });
+                                        polishHtml += '</div>';
+                                    }
+                                    addMsg('bot', polishHtml);
+                                } else if (job.status === 'failed') {
+                                    clearInterval(pollId);
+                                    addMsg('bot', `<span style="color:var(--warning)">⚠ Polish reply failed: ${job.error || 'unknown'}</span>`);
+                                }
+                            } catch (e) { /* retry */ }
+                        }, 2000);
+                        setTimeout(() => clearInterval(pollId), 60000);
+                    }
+                } catch (err) {
+                    if (typing) typing.remove();
+                    addMsg('bot', `<span style="color:#ef4444">❌ Error: ${err.message}</span>`);
+                }
+                sendBtn.disabled = false;
+            }
+
+            sendBtn.addEventListener('click', sendQuestion);
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') sendQuestion(); });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // QUIZ GENERATION (Tab 6)
+        // ══════════════════════════════════════════════════════════════════
+        (function initQuiz() {
+            const genBtn = $('#btnQuizGen');
+            if (!genBtn) return;
+            let quizScore = 0, quizTotal = 0;
+
+            function getStem() {
+                return window._lastVideoStem || ($('#noteStem') && $('#noteStem').value.trim()) || 'video';
+            }
+
+            function updateScore() {
+                const el = $('#quizScoreText');
+                if (el) el.textContent = `Score: ${quizScore} / ${quizTotal}`;
+            }
+
+            genBtn.addEventListener('click', async () => {
+                const stem = getStem();
+                const count = parseInt($('#quizCount').value) || 5;
+                genBtn.disabled = true;
+                genBtn.innerHTML = '<span class="spinner"></span> Generating…';
+                quizScore = 0;
+                quizTotal = 0;
+
+                try {
+                    const resp = await fetch('/generate_quiz', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ video_stem: stem, count: count })
+                    });
+                    const data = await resp.json();
+
+                    if (data.detail) throw new Error(data.detail);
+                    if (data.error) throw new Error(data.error);
+
+                    // Backend returns {mcq:[...], short:[...]} — merge into unified questions array
+                    const mcqs = (data.mcq || []).map(q => ({
+                        ...q,
+                        type: 'mcq',
+                        // Backend uses answer: 'A'/'B'/'C'/'D' letter — convert to index
+                        correct_index: q.answer && q.answer.length === 1
+                            ? 'ABCD'.indexOf(q.answer.toUpperCase())
+                            : (q.answer_index ?? q.correct_index ?? -1)
+                    }));
+                    const shorts = (data.short || []).map(q => ({ ...q, type: 'short' }));
+                    const questions = [...mcqs, ...shorts];
+                    const cards = $('#quizCards');
+                    cards.innerHTML = '';
+                    $('#quizResults').style.display = 'block';
+                    updateScore();
+
+                    // Provider badge
+                    const pb = $('#quizProviderBadge');
+                    if (pb && data.llm_provider) pb.textContent = `LLM: ${data.llm_provider}`;
+
+                    questions.forEach((q, i) => {
+                        const card = document.createElement('div');
+                        card.className = 'quiz-card';
+
+                        const isMCQ = q.type === 'mcq' || (q.options && q.options.length > 0);
+                        let html = `<div class="quiz-q-num">${isMCQ ? '📝 MCQ' : '✍️ Short Answer'} — Question ${i + 1}</div>`;
+                        html += `<div class="quiz-q-text">${q.question}</div>`;
+
+                        if (isMCQ && q.options) {
+                            q.options.forEach((opt, j) => {
+                                const letter = String.fromCharCode(65 + j);
+                                html += `<button class="quiz-option" data-idx="${j}" data-correct="${q.correct_index ?? q.answer_index ?? -1}">${letter}. ${opt}</button>`;
+                            });
+                            html += `<div class="quiz-explanation" id="quizExpl${i}">${q.explanation || 'No explanation provided.'}</div>`;
+                        } else {
+                            // Short answer
+                            html += `<div class="quiz-sa-answer">`;
+                            html += `<button class="quiz-sa-reveal" data-target="quizSA${i}">👁 Reveal Answer</button>`;
+                            html += `<div class="quiz-sa-text" id="quizSA${i}">${q.answer || q.correct_answer || 'No answer available.'}</div>`;
+                            html += `</div>`;
+                        }
+
+                        card.innerHTML = html;
+                        cards.appendChild(card);
+
+                        // MCQ click handlers
+                        if (isMCQ) {
+                            card.querySelectorAll('.quiz-option').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    if (btn.classList.contains('chosen')) return;
+                                    const correct = parseInt(btn.dataset.correct);
+                                    const chosen = parseInt(btn.dataset.idx);
+                                    quizTotal++;
+
+                                    card.querySelectorAll('.quiz-option').forEach(b => b.classList.add('chosen'));
+
+                                    if (chosen === correct) {
+                                        btn.classList.add('correct');
+                                        btn.innerHTML = '✅ ' + btn.textContent;
+                                        quizScore++;
+                                    } else {
+                                        btn.classList.add('wrong');
+                                        btn.innerHTML = '❌ ' + btn.textContent;
+                                        // Highlight correct one
+                                        card.querySelectorAll('.quiz-option').forEach(b => {
+                                            if (parseInt(b.dataset.idx) === correct) {
+                                                b.classList.add('correct');
+                                                b.innerHTML = '✅ ' + b.textContent;
+                                            }
+                                        });
+                                    }
+                                    updateScore();
+                                    const expl = card.querySelector('.quiz-explanation');
+                                    if (expl) expl.classList.add('shown');
+                                });
+                            });
+                        }
+
+                        // SA reveal handler
+                        const revealBtn = card.querySelector('.quiz-sa-reveal');
+                        if (revealBtn) {
+                            revealBtn.addEventListener('click', () => {
+                                const target = document.getElementById(revealBtn.dataset.target);
+                                if (target) target.style.display = target.style.display === 'block' ? 'none' : 'block';
+                            });
+                        }
+                    });
+
+                    toast(`Quiz generated! ${questions.length} questions`, 'success');
+                } catch (err) {
+                    toast('Quiz error: ' + err.message, 'error');
+                }
+
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<span>🎲</span> Generate Quiz';
+            });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // EXPORT / DOWNLOAD HELPERS
+        // ══════════════════════════════════════════════════════════════════
+        function downloadJSON(data, filename) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast(`Downloaded ${filename}`, 'success');
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // HEALTH STATUS INDICATOR
+        // ══════════════════════════════════════════════════════════════════
+        async function pingHealth() {
+            const dot = $('#healthDotCircle');
+            const lbl = $('#healthDotLabel');
+            const wrap = $('#healthDot');
+            try {
+                const r = await fetch('/health', { signal: AbortSignal.timeout(3000) });
+                const d = await r.json();
+                if (d.status === 'ok') {
+                    dot.style.background = '#22c55e';
+                    lbl.textContent = `Online · ${d.llm_provider || 'LLM'}`;
+                    wrap.style.color = '#22c55e';
+                    wrap.style.borderColor = 'rgba(34,197,94,0.3)';
+                    wrap.title = `Uptime: ${d.uptime_seconds}s | Uploads: ${d.uploads_count} | Analyses: ${d.analyses_count} | ffmpeg: ${d.ffmpeg_available ? '✓' : '✗'}`;
+                } else { throw new Error('not ok'); }
+            } catch {
+                dot.style.background = '#ef4444';
+                lbl.textContent = 'Server offline';
+                wrap.style.color = '#ef4444';
+                wrap.style.borderColor = 'rgba(239,68,68,0.3)';
+            }
+        }
+        pingHealth();
+        setInterval(pingHealth, 30000);
+
+        // ══════════════════════════════════════════════════════════════════
+        // VIDEO STEM PROPAGATION — update chat & quiz when analysis completes
+        // ══════════════════════════════════════════════════════════════════
+        (function watchStemChanges() {
+            const origSetter = Object.getOwnPropertyDescriptor(window, '_lastVideoStem');
+            let _stemValue = window._lastVideoStem || '';
+
+            function propagateStem(stem) {
+                // Chat panel
+                if ($('#chatStemLabel')) $('#chatStemLabel').textContent = stem;
+                if ($('#chatReadyHint')) $('#chatReadyHint').style.display = 'block';
+                if ($('#chatNoAnalysis')) $('#chatNoAnalysis').style.display = 'none';
+                // Quiz panel
+                if ($('#quizStemLabel')) $('#quizStemLabel').textContent = stem;
+                if ($('#quizReadyHint')) $('#quizReadyHint').style.display = 'block';
+                if ($('#quizNoAnalysis')) $('#quizNoAnalysis').style.display = 'none';
+            }
+
+            // Intercept writes to window._lastVideoStem
+            Object.defineProperty(window, '_lastVideoStem', {
+                get() { return _stemValue; },
+                set(v) {
+                    _stemValue = v;
+                    if (v) propagateStem(v);
+                },
+                configurable: true
+            });
+
+            // Check if already set
+            if (_stemValue) propagateStem(_stemValue);
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // CONFETTI CELEBRATION ENGINE
+        // ══════════════════════════════════════════════════════════════════
+        const confettiEngine = (function() {
+            const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return { fire() {} };
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animating = false;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const COLORS = ['#6366f1', '#a855f7', '#ec4899', '#22c55e', '#f59e0b', '#0ea5e9', '#fff'];
+
+            function fire(x, y, count = 60) {
+                const cx = x ?? canvas.width / 2;
+                const cy = y ?? canvas.height * 0.3;
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 3 + Math.random() * 8;
+                    particles.push({
+                        x: cx, y: cy,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 3,
+                        size: 4 + Math.random() * 6,
+                        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                        rotation: Math.random() * 360,
+                        rotSpeed: (Math.random() - 0.5) * 12,
+                        life: 1,
+                        decay: 0.008 + Math.random() * 0.01,
+                        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+                    });
+                }
+                if (!animating) { animating = true; animate(); }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles = particles.filter(p => p.life > 0);
+                if (particles.length === 0) { animating = false; return; }
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.15;
+                    p.vx *= 0.99;
+                    p.rotation += p.rotSpeed;
+                    p.life -= p.decay;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation * Math.PI / 180);
+                    ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.fillStyle = p.color;
+                    if (p.shape === 'rect') {
+                        ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size/2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            return { fire };
+        })();
+
+        function emitSparkles(el) {
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // 3D CARD TILT EFFECT
+        // ══════════════════════════════════════════════════════════════════
+        (function init3DTilt() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const r = card.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width - 0.5;
+                    const y = (e.clientY - r.top) / r.height - 0.5;
+                    card.style.setProperty('--tiltX', (-y * 3) + 'deg');
+                    card.style.setProperty('--tiltY', (x * 3) + 'deg');
+                    card.classList.add('tilt-active');
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.remove('tilt-active');
+                    card.style.setProperty('--tiltX', '0deg');
+                    card.style.setProperty('--tiltY', '0deg');
+                });
+            });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // ANIMATED NUMBER COUNTERS
+        // ══════════════════════════════════════════════════════════════════
+        function animateNumber(el, target, duration = 600) {
+            if (!el) return;
+            const start = parseFloat(el.textContent) || 0;
+            if (start === target) return;
+            const startTime = performance.now();
+            const suffix = typeof target === 'string' ? '' : '';
+
+            function tick(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = start + (target - start) * eased;
+                el.textContent = Number.isInteger(target) ? Math.round(current) : current.toFixed(1);
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        // Patch metrics to use animated counters
+        const _origUpdateMetrics = window.updateStreamMetrics || function(){};
+        (function patchMetrics() {
+            const _original = updateStreamMetrics;
+            window.updateStreamMetrics = function(latencyMs) {
+                _original(latencyMs);
+                const chunks = document.getElementById('metricChunks');
+                const frames = document.getElementById('metricFrames');
+                const objects = document.getElementById('metricObjects');
+                if (chunks) animateNumber(chunks, totalChunks);
+                if (frames) animateNumber(frames, totalFrames);
+                if (objects) animateNumber(objects, totalDetections);
+            };
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // KEYBOARD SHORTCUTS
+        // ══════════════════════════════════════════════════════════════════
+        (function initKeyboardShortcuts() {
+            const tabMap = { '1': 'upload', '2': 'notes', '3': 'stream', '4': 'url', '5': 'chat', '6': 'quiz' };
+            document.addEventListener('keydown', e => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+                if (e.key === '?') {
+                    e.preventDefault();
+                    const m = document.getElementById('kbModal');
+                    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    document.getElementById('kbModal').style.display = 'none';
+                    return;
+                }
+                const tab = tabMap[e.key];
+                if (tab) {
+                    e.preventDefault();
+                    const btn = document.querySelector(`.tab[data-tab="${tab}"]`);
+                    if (btn) btn.click();
+                }
+            });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // SESSION TIMER (live stream)
+        // ══════════════════════════════════════════════════════════════════
+        let sessionTimerInterval = null;
+        let sessionStartTime = null;
+        function startSessionTimer() {
+            sessionStartTime = Date.now();
+            const el = document.getElementById('sessionTimer');
+            if (!el) return;
+            sessionTimerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+                const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const s = String(elapsed % 60).padStart(2, '0');
+                el.textContent = m + ':' + s;
+            }, 1000);
+        }
+        function stopSessionTimer() {
+            if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // AUDIO VISUALIZER (real-time from mic)
+        // ══════════════════════════════════════════════════════════════════
+        let audioContext = null;
+        let audioAnalyser = null;
+        let audioAnimFrame = null;
+        function startAudioVisualizer(stream) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                audioAnalyser = audioContext.createAnalyser();
+                audioAnalyser.fftSize = 32;
+                source.connect(audioAnalyser);
+                const data = new Uint8Array(audioAnalyser.frequencyBinCount);
+                const bars = document.querySelectorAll('#audioVisualizer .audio-bar');
+
+                function draw() {
+                    audioAnalyser.getByteFrequencyData(data);
+                    bars.forEach((bar, i) => {
+                        const val = data[i % data.length] || 0;
+                        bar.style.height = Math.max(2, val / 10) + 'px';
+                    });
+                    audioAnimFrame = requestAnimationFrame(draw);
+                }
+                draw();
+            } catch (e) { /* audio viz not critical */ }
+        }
+        function stopAudioVisualizer() {
+            if (audioAnimFrame) cancelAnimationFrame(audioAnimFrame);
+            if (audioContext) audioContext.close().catch(() => {});
+            audioContext = null;
+            audioAnalyser = null;
+            const bars = document.querySelectorAll('#audioVisualizer .audio-bar');
+            bars.forEach(b => b.style.height = '2px');
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // SCREEN SHARE SUPPORT
+        // ══════════════════════════════════════════════════════════════════
+        (function initScreenShare() {
+            const btn = document.getElementById('btnScreenShare');
+            if (!btn) return;
+            let isScreenMode = false;
+
+            btn.addEventListener('click', async () => {
+                try {
+                    if (isScreenMode) {
+                        if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+                        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        document.getElementById('videoPreview').srcObject = webcamStream;
+                        isScreenMode = false;
+                        btn.textContent = '🖥️ Screen';
+                        document.getElementById('streamSourceLabel').textContent = 'Camera';
+                        startAudioVisualizer(webcamStream);
+                        toast('Switched to camera', 'success');
+                    } else {
+                        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                        if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+                        webcamStream = screenStream;
+                        document.getElementById('videoPreview').srcObject = screenStream;
+                        isScreenMode = true;
+                        btn.textContent = '📷 Camera';
+                        document.getElementById('streamSourceLabel').textContent = 'Screen Share';
+                        startAudioVisualizer(screenStream);
+                        screenStream.getVideoTracks()[0].onended = () => {
+                            isScreenMode = false;
+                            btn.textContent = '🖥️ Screen';
+                            document.getElementById('streamSourceLabel').textContent = 'Camera';
+                        };
+                        toast('Switched to screen share', 'success');
+                    }
+
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                        let mimeType = 'video/webm;codecs=vp8,opus';
+                        if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+                        mediaRecorder = new MediaRecorder(webcamStream, { mimeType });
+                        mediaRecorder.ondataavailable = mediaRecorder.ondataavailable;
+                        mediaRecorder.start(2000);
+                    }
+                } catch (err) {
+                    toast('Screen share error: ' + err.message, 'error');
+                }
+            });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // POSE SKELETON OVERLAY (draws keypoints on bbox canvas)
+        // ══════════════════════════════════════════════════════════════════
+        function drawPoseSkeleton(poseData) {
+            if (!poseData || !poseData.ok || !overlayEnabled) return;
+            const canvas = document.getElementById('bboxCanvas');
+            const video = document.getElementById('videoPreview');
+            if (!canvas || !video) return;
+            const ctx = canvas.getContext('2d');
+            const meta = poseData.meta || {};
+            const vw = meta.w || video.videoWidth || 640;
+            const vh = meta.h || video.videoHeight || 480;
+            const scaleX = canvas.width / vw;
+            const scaleY = canvas.height / vh;
+
+            const angles = poseData.angles || {};
+            const color = '#10b981';
+
+            // Draw angle indicators as arc wedges at approximate positions
+            if (angles.left_knee || angles.right_knee) {
+                const knee = Math.max(angles.left_knee || 0, angles.right_knee || 0);
+                const pct = Math.min(knee / 180, 1);
+                ctx.fillStyle = pct > 0.7 ? '#22c55e' : pct > 0.4 ? '#f59e0b' : '#ef4444';
+                ctx.font = 'bold 12px "Inter", sans-serif';
+                ctx.fillText(`Knee: ${Math.round(knee)}°`, 8, canvas.height - 30);
+            }
+            if (angles.left_elbow || angles.right_elbow) {
+                const elbow = Math.max(angles.left_elbow || 0, angles.right_elbow || 0);
+                ctx.fillStyle = '#0ea5e9';
+                ctx.font = 'bold 12px "Inter", sans-serif';
+                ctx.fillText(`Elbow: ${Math.round(elbow)}°`, 8, canvas.height - 12);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        // EXPORT MARKDOWN REPORT
+        // ══════════════════════════════════════════════════════════════════
+        function exportMarkdownReport() {
+            const data = window._lastAnalysisData;
+            if (!data) { toast('No analysis data available', 'error'); return; }
+
+            let md = `# Vision Agent Analysis Report\n\n`;
+            md += `**Generated**: ${new Date().toLocaleString()}\n\n`;
+            md += `## Overview\n`;
+            md += `- **Frames extracted**: ${data.frames_count || 'N/A'}\n`;
+            md += `- **Total processing time**: ${data.total_time_seconds || 'N/A'}s\n`;
+            md += `- **Detection time**: ${data.detection_time_seconds || 'N/A'}s\n`;
+            md += `- **Transcription time**: ${data.transcription_time_seconds || 'N/A'}s\n\n`;
+
+            if (data.transcript && data.transcript.text) {
+                md += `## Transcript\n\n${data.transcript.text}\n\n`;
+            }
+            if (data.detections_summary) {
+                md += `## Detections\n\n\`\`\`json\n${JSON.stringify(data.detections_summary, null, 2)}\n\`\`\`\n\n`;
+            }
+            md += `---\n*Generated by Vision Agent — WeMakeDevs Hackathon 2026*\n`;
+
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vision_agent_report_${data.video_stem || 'video'}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('Markdown report exported!', 'success');
+        }
+
+        // Hook export button into Upload results
+        (function addExportMdButton() {
+            const row = document.querySelector('.export-btn-row');
+            if (!row) return;
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-secondary';
+            btn.style.fontSize = '12px';
+            btn.style.padding = '8px 14px';
+            btn.innerHTML = '<span>📝</span> Export Markdown Report';
+            btn.addEventListener('click', exportMarkdownReport);
+            row.appendChild(btn);
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // PATCH STREAM START/STOP TO USE NEW FEATURES
+        // ══════════════════════════════════════════════════════════════════
+        (function patchStreamHandlers() {
+            const origStart = document.getElementById('btnStartStream');
+            const origStop = document.getElementById('btnStopStream');
+            if (!origStart || !origStop) return;
+
+            origStart.addEventListener('click', () => {
+                startSessionTimer();
+                setTimeout(() => {
+                    if (webcamStream) startAudioVisualizer(webcamStream);
+                }, 500);
+            });
+
+            origStop.addEventListener('click', () => {
+                stopSessionTimer();
+                stopAudioVisualizer();
+            });
+        })();
+
+        // Patch stream chunk handler to also draw pose skeleton and fire confetti
+        (function patchChunkHandler() {
+            const orig = window.drawBboxes;
+            window.drawBboxes = function(pfd) {
+                orig(pfd);
+                // pose skeleton is drawn via the coach data in the chunk response
+            };
+        })();
+
+        // Override toast to fire confetti on analysis complete
+        (function patchSuccessConfetti() {
+            const origToast = window.toast || function(){};
+            // Fire confetti on big success events
+            window.addEventListener('click', e => {
+                const btn = e.target.closest('#btnAnalyze, #btnNotes, #btnQuizGen, #btnFetchAnalyze');
+                if (btn) {
+                    window._pendingConfetti = true;
+                }
+            });
+
+            const origT = toast;
+            window.toast = function(msg, type) {
+                origT(msg, type);
+                if (type === 'success' && window._pendingConfetti) {
+                    window._pendingConfetti = false;
+                    setTimeout(() => confettiEngine.fire(undefined, undefined, 80), 300);
+                }
+            };
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // COSMIC STARFIELD BACKGROUND
+        // ══════════════════════════════════════════════════════════════════
+        (function initCosmic() {
+            const canvas = document.getElementById('cosmicCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let W, H;
+            let mouseX = 0, mouseY = 0;
+
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Track mouse for subtle parallax
+            document.addEventListener('mousemove', e => {
+                mouseX = (e.clientX / W - 0.5) * 2;
+                mouseY = (e.clientY / H - 0.5) * 2;
+            });
+
+            // Star data
+            const STAR_COUNT = 180;
+            const stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.5 + 0.3,
+                    speed: Math.random() * 0.15 + 0.02,
+                    drift: (Math.random() - 0.5) * 0.08,
+                    twinkle: Math.random() * Math.PI * 2,
+                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    depth: Math.random(),  // 0=far, 1=near (parallax factor)
+                    hue: Math.random() > 0.85 ? (Math.random() * 60 + 200) : 0, // some blue/purple tinted
+                });
+            }
+
+            // Nebula data (breathing, color-shifting glows)
+            const nebulae = [
+                { x: 0.15, y: 0.25, rx: 350, ry: 250, hue: 260, sat: 70, alpha: 0.05, phase: 0 },
+                { x: 0.75, y: 0.55, rx: 280, ry: 380, hue: 230, sat: 60, alpha: 0.04, phase: 2 },
+                { x: 0.5, y: 0.85, rx: 420, ry: 220, hue: 280, sat: 50, alpha: 0.03, phase: 4 },
+                { x: 0.9, y: 0.15, rx: 200, ry: 300, hue: 320, sat: 65, alpha: 0.025, phase: 1 },
+            ];
+
+            // Shooting stars
+            const shootingStars = [];
+            function spawnShootingStar() {
+                shootingStars.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H * 0.4,
+                    vx: 4 + Math.random() * 6,
+                    vy: 2 + Math.random() * 3,
+                    life: 1,
+                    length: 40 + Math.random() * 80,
+                    width: 1 + Math.random(),
+                });
+            }
+
+            let time = 0;
+
+            function draw() {
+                time++;
+                ctx.clearRect(0, 0, W, H);
+
+                // Deep space gradient background
+                const grad = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.7);
+                grad.addColorStop(0, '#0d0d1a');
+                grad.addColorStop(0.5, '#080812');
+                grad.addColorStop(1, '#030308');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, W, H);
+
+                // Spawn occasional shooting star
+                if (Math.random() < 0.003) spawnShootingStar();
+
+                // Draw nebulae (breathing, color-shifting glows)
+                nebulae.forEach(n => {
+                    const breathe = 1 + 0.15 * Math.sin(time * 0.008 + (n.phase || 0));
+                    const hueShift = n.hue + Math.sin(time * 0.003 + (n.phase || 0)) * 10;
+                    const nx = n.x * W + mouseX * 12;
+                    const ny = n.y * H + mouseY * 12;
+                    const rx = n.rx * breathe;
+                    const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, rx);
+                    const c = `hsla(${hueShift}, ${n.sat}%, 50%,`;
+                    ng.addColorStop(0, c + (n.alpha * breathe + 0.01) + ')');
+                    ng.addColorStop(0.4, c + (n.alpha * breathe) + ')');
+                    ng.addColorStop(1, c + '0)');
+                    ctx.fillStyle = ng;
+                    ctx.fillRect(0, 0, W, H);
+                });
+
+                // Draw and update stars
+                stars.forEach(s => {
+                    // Move
+                    s.y += s.speed;
+                    s.x += s.drift;
+
+                    // Parallax from mouse
+                    const px = s.x + mouseX * s.depth * 12;
+                    const py = s.y + mouseY * s.depth * 12;
+
+                    // Wrap around
+                    if (s.y > H + 5) { s.y = -5; s.x = Math.random() * W; }
+                    if (s.x > W + 5) s.x = -5;
+                    if (s.x < -5) s.x = W + 5;
+
+                    // Twinkle
+                    s.twinkle += s.twinkleSpeed;
+                    const alpha = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(s.twinkle));
+
+                    // Draw star
+                    ctx.beginPath();
+                    ctx.arc(px, py, s.r, 0, Math.PI * 2);
+                    if (s.hue > 0) {
+                        ctx.fillStyle = `hsla(${s.hue}, 80%, 80%, ${alpha})`;
+                    } else {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    }
+                    ctx.fill();
+
+                    // Glow for larger stars
+                    if (s.r > 1.2) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, s.r * 3, 0, Math.PI * 2);
+                        const glowColor = s.hue > 0
+                            ? `hsla(${s.hue}, 70%, 70%, ${alpha * 0.1})`
+                            : `rgba(200, 200, 255, ${alpha * 0.08})`;
+                        ctx.fillStyle = glowColor;
+                        ctx.fill();
+                    }
+                });
+
+                // Draw shooting stars
+                for (let si = shootingStars.length - 1; si >= 0; si--) {
+                    const ss = shootingStars[si];
+                    ss.x += ss.vx;
+                    ss.y += ss.vy;
+                    ss.life -= 0.015;
+                    if (ss.life <= 0 || ss.x > W + 100 || ss.y > H + 100) {
+                        shootingStars.splice(si, 1);
+                        continue;
+                    }
+                    const tailX = ss.x - ss.vx * (ss.length / ss.vx);
+                    const tailY = ss.y - ss.vy * (ss.length / ss.vx);
+                    const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+                    grad.addColorStop(0, `rgba(255,255,255,0)`);
+                    grad.addColorStop(1, `rgba(255,255,255,${ss.life * 0.8})`);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = ss.width;
+                    ctx.beginPath();
+                    ctx.moveTo(tailX, tailY);
+                    ctx.lineTo(ss.x, ss.y);
+                    ctx.stroke();
+                    // Head glow
+                    ctx.beginPath();
+                    ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${ss.life})`;
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+    </script>
+</body>
+
+</html>

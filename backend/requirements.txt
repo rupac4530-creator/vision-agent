@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+opencv-python
+pillow
+numpy
+tqdm
+ultralytics
+openai>=1.0.0
+requests
+yt-dlp
+mediapipe

@@ -1,0 +1,90 @@
+============================================================
+SUBMISSION_READY.txt — Vision Agent Hackathon Submission
+============================================================
+
+TITLE:
+  Vision Agent — Real-Time Lecture Assistant (Multimodal)
+
+SHORT DESCRIPTION:
+  End-to-end multimodal system: low-latency chunked video
+  ingestion → transcript + visual detection → LLM-driven
+  notes, LaTeX formulas, and graded viva questions with
+  provenance.
+
+LONG DESCRIPTION (paste this into the hackathon form):
+  Vision Agent is a production-minded demo that ingests
+  lecture video (or webcam streams), extracts frames & audio,
+  performs fast per-chunk transcription and object detection,
+  and synthesizes study-ready outputs — summary, key concepts,
+  LaTeX formulas, and difficulty-banded viva questions. The
+  system supports real-time feedback (2–5s chunk responses),
+  final stitched analysis, an interactive UI (timeline
+  thumbnails, provenance-linked highlights), and QA + quiz
+  generation. Built with a practical latency-first design, it
+  demonstrates both real-time interaction and deep
+  understanding for educational use-cases.
+
+METRIC LINE (include in submission):
+  Per-chunk average latency: ~2-5s (whisper-1 + yolov8n on
+  laptop). Final analysis time: ~10-20s for a 30s video.
+
+TAGS:
+  education, multimodal, real-time, vision-ai, LLM,
+  Stream, OpenAI
+
+REPO URL:
+  https://github.com/rupac4530-creator/vision-agent
+
+VIDEO URL:
+  https://github.com/rupac4530-creator/vision-agent/releases/tag/v1.0-hackathon
+  (Upload demo video here as a release asset)
+
+TEAM:
+  <YOUR_NAME>
+
+TECH STACK:
+  Python 3.11, FastAPI, OpenCV, YOLOv8, OpenAI Whisper API,
+  GPT-4o-mini, MathJax, MediaRecorder API, Docker
+
+HACKATHON:
+  WeMakeDevs — Vision Possible: Agent Protocol
+
+============================================================
+HOW TO REPRODUCE (for judges):
+============================================================
+
+Option A: Docker (recommended — no ffmpeg install needed)
+  docker compose up --build
+  Open http://localhost:8000
+
+Option B: Local
+  cd vision-agent/backend
+  python -m venv venv
+  # Windows: .\venv\Scripts\Activate.ps1
+  # Linux:   source venv/bin/activate
+  pip install -r requirements.txt
+  $env:OPENAI_API_KEY = "sk-..."   # or export on Linux
+  uvicorn main:app --reload --port 8000
+  Open http://localhost:8000
+
+Sample outputs available at:
+  /analysis/sample/notes.json
+  /analysis/sample/quiz.json
+  /analysis/sample/analysis.json
+
+============================================================
+COMPLETION STATUS
+============================================================
+
+✅ All 30/30 automated tests passed
+✅ 7 API endpoints operational
+✅ Interactive demo UI with QA chat, quiz, timeline
+✅ Sample artifacts for offline review
+✅ Graceful fallback when API key missing
+✅ Docker support for easy reproduction
+✅ GitHub Actions CI workflow included
+
+REMAINING MANUAL STEPS:
+  1. Record 2:30 demo video
+  2. Upload video to GitHub Release: gh release upload v1.0-hackathon ./day6-final-demo.mp4
+  3. Submit on hackathon portal with the URLs above

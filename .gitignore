@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Environment
+.env
+
+# Uploaded / generated data (keep samples)
+backend/uploads/
+backend/frames/
+backend/stream_uploads/
+backend/analysis/*
+!backend/analysis/sample/
+
+# Models
+*.pt
+*.pth
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+backend/server.pid
+
+# Fetched/cached videos
+backend/remote_fetch/
+backend/test_video.mp4
+*.zip
+
+# Reports (generated locally)
+backend/*_report.txt

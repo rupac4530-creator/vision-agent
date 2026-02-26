@@ -1,0 +1,32 @@
+========================================
+  FIX "Connection Refused" at localhost:8000
+========================================
+
+ERR_CONNECTION_REFUSED means the server is not running. Start it first.
+
+OPTION 1 - Double-click (easiest)
+---------------------------------
+Double-click:  start_server.bat
+
+A black window will open and stay open. Then open your browser to:
+  http://localhost:8000
+
+
+OPTION 2 - PowerShell / Command Prompt
+--------------------------------------
+1. Open PowerShell or Command Prompt
+2. Run:
+
+   cd "D:\VisionAgent_COMPLETE_SAVE_2026-02-24\vision-agent\backend"
+   start_server.bat
+
+   (Or run the commands inside start_server.bat manually.)
+
+
+If "python" is not recognized
+-----------------------------
+- Install Python 3.10+ from https://www.python.org/downloads/
+- During setup, check "Add Python to PATH"
+- Restart your terminal, then run start_server.bat again
+
+========================================
