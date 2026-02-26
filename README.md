@@ -30,30 +30,55 @@
 
 ## 📸 Platform Preview
 
-<p align="center">
-  <img src="assets/screenshots/01-upload-analyze.png" alt="Upload & Analyze" width="600"/>
-  <br/><em>🎬 Upload & Analyze — Video upload, frame extraction, YOLO detection</em>
-</p>
+> **17 AI-powered tabs** — each designed for a specific real-time vision or audio task. Built with a stunning cosmic dark theme.
 
-<p align="center">
-  <img src="assets/screenshots/02-live-stream.png" alt="Live Stream" width="600"/>
-  <br/><em>📡 Real-Time Vision Agent Stream — Webcam YOLO detection with agent reasoning</em>
-</p>
+### 🎬 Core Analysis
 
-<p align="center">
-  <img src="assets/screenshots/03-dashboard.png" alt="Performance Dashboard" width="600"/>
-  <br/><em>📊 Performance Dashboard — LLM cascade status, API latency, session stats</em>
-</p>
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss1.jpg" alt="Upload & Analyze"/><br/><strong>Upload & Analyze</strong> — Video upload, frame extraction, YOLO object detection & audio transcription</td>
+<td width="50%"><img src="assets/screenshots/ss2.jpg" alt="AI Study Notes"/><br/><strong>AI Study Notes</strong> — LLM-powered structured notes, formulas & viva questions from video content</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss4.jpg" alt="Ingest URL"/><br/><strong>Ingest Video from URL</strong> — YouTube, Vimeo, X/Twitter, Twitch — paste a link, auto-analyze</td>
+<td width="50%"><img src="assets/screenshots/ss6.jpg" alt="Interactive Quiz"/><br/><strong>Interactive Quiz</strong> — MCQ & short-answer questions auto-generated from video analysis</td>
+</tr>
+</table>
 
-<p align="center">
-  <img src="assets/screenshots/04-ai-notes.png" alt="AI Notes" width="600"/>
-  <br/><em>📝 AI Study Notes — LLM-powered structured notes from video content</em>
-</p>
+### 🤖 AI Agents & Chat
 
-<p align="center">
-  <img src="assets/screenshots/05-characters.png" alt="AI Character Personas" width="600"/>
-  <br/><em>🧙 AI Character Personas — 6 unique AI characters with distinct personalities</em>
-</p>
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss5.jpg" alt="Agent Chat"/><br/><strong>Agent Chat</strong> — 2-tier FastReply (YOLO labels + transcript) then polished LLM response</td>
+<td width="50%"><img src="assets/screenshots/ss9.jpg" alt="AI Character Personas"/><br/><strong>AI Character Personas</strong> — 6 unique characters (Aldrich, Coach, Professor, Dr. Nova, Guardian, Alex)</td>
+</tr>
+</table>
+
+### 📡 Real-Time Vision
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss3.jpg" alt="Live Stream"/><br/><strong>Real-Time Vision Stream</strong> — Webcam YOLO detection every 2s with agent reasoning overlay</td>
+<td width="50%"><img src="assets/screenshots/ss7.jpg" alt="Pose Coach"/><br/><strong>AI Pose Coach</strong> — Exercise tracking (squats, pushups), joint angles, rep counting & voice coaching</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss8.jpg" alt="Security Camera"/><br/><strong>AI Security Camera</strong> — Real-time threat detection, wanted poster generation & alert logging</td>
+<td width="50%"><img src="assets/screenshots/ss10.jpg" alt="Crowd Monitor"/><br/><strong>Crowd Safety Monitor</strong> — Density estimation, distress detection, safety scoring & heatmap</td>
+</tr>
+</table>
+
+### 🎮 Specialized Features
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss11.jpg" alt="Gaming Companion"/><br/><strong>AI Gaming Companion</strong> — Upload game screenshots for real-time strategy advice & voice commentary</td>
+<td width="50%"><img src="assets/screenshots/ss12.jpg" alt="Performance Dashboard"/><br/><strong>Performance Dashboard</strong> — LLM cascade status, API latency charts, frame sampler & session stats</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/ss13.jpg" alt="All Tabs"/><br/><strong>Full Tab Bar</strong> — All 17 AI tabs with the cosmic dark theme, including Accessibility & Meeting AI</td>
+<td width="50%">🎥 <a href="assets/screenshots/vid1.html"><strong>Video Demo</strong></a> — Watch the full platform walkthrough</td>
+</tr>
+</table>
 
 ## 👤 About the Creator
 
