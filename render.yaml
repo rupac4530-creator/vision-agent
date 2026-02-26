@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: vision-agent
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+    autoDeploy: true
+    plan: starter
