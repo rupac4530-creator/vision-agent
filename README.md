@@ -76,7 +76,7 @@
 </tr>
 <tr>
 <td width="50%"><img src="assets/screenshots/ss13.jpg" alt="All Tabs"/><br/><strong>Full Tab Bar</strong> — All 17 AI tabs with the cosmic dark theme, including Accessibility & Meeting AI</td>
-<td width="50%">🎥 <a href="assets/screenshots/demo-video.mp4"><strong>Video Demo</strong></a> — Watch the platform walkthrough (MP4)</td>
+<td width="50%"></td>
 </tr>
 </table>
 
